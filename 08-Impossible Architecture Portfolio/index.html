@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Monolith — Archive of Impossible Rooms</title>
+  <meta name="description" content="A digital architecture exhibition: eight works housed in a brutalist building that should not stand." />
+  <meta name="theme-color" content="#d4cbbd" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <canvas id="gl" aria-label="Interactive 3D exhibition. Scroll or use arrow keys to move through the building." tabindex="0"></canvas>
+
+  <!-- Loading sequence -->
+  <div id="loader" class="loader" role="status" aria-live="polite">
+    <div class="loader-inner">
+      <p class="loader-kicker">Monolith / Archive of impossible rooms</p>
+      <div class="loader-count"><span id="loader-num">000</span><sup>%</sup></div>
+      <div class="loader-bar"><i id="loader-bar"></i></div>
+      <p class="loader-step" id="loader-step">Surveying the site</p>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hud">
+    <header class="hud-top">
+      <a class="brand" href="#" aria-label="Monolith, back to the threshold" data-nav="0">
+        <strong>Monolith</strong><span>Archive of impossible rooms</span>
+      </a>
+      <div class="hud-actions">
+        <button id="sound-toggle" class="chip" aria-pressed="false">Sound <b>Off</b></button>
+        <span class="chip chip-static">8 works</span>
+      </div>
+    </header>
+
+    <nav class="hud-nav" aria-label="Sections">
+      <div class="hud-rail"><i id="rail-fill"></i></div>
+      <ol id="section-list"></ol>
+    </nav>
+
+    <div class="hud-section" aria-hidden="true">
+      <span id="sec-num">01</span>
+      <span class="hud-section-name"><span id="sec-name">Threshold</span></span>
+    </div>
+
+    <div class="hud-readout" aria-hidden="true">
+      <div class="gravity" title="Gravity">
+        <svg viewBox="0 0 40 40" id="gravity-arrow"><circle cx="20" cy="20" r="18"/><path d="M20 9v20M14 23l6 6 6-6"/></svg>
+      </div>
+      <dl>
+        <div><dt>Z</dt><dd id="ro-z">+000.0</dd></div>
+        <div><dt>Roll</dt><dd id="ro-roll">000°</dd></div>
+        <div><dt>Depth</dt><dd id="ro-depth">000%</dd></div>
+      </dl>
+    </div>
+
+    <p class="intro-caption" id="intro-caption">A digital exhibition of eight works, housed in a building that should not stand.</p>
+    <div class="scroll-hint" id="scroll-hint"><span>Scroll to enter</span><i></i></div>
+    <button id="return-btn" class="return-btn" tabindex="-1">Return to the threshold <span>↺</span></button>
+  </div>
+
+  <!-- Hover info -->
+  <div id="hover-card" class="hover-card" aria-hidden="true">
+    <span class="hc-index"></span>
+    <strong class="hc-title"></strong>
+    <span class="hc-meta"></span>
+  </div>
+
+  <!-- Project detail -->
+  <aside id="panel" class="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" hidden>
+    <div class="panel-scrim" data-close></div>
+    <div class="panel-sheet">
+      <button class="panel-close" data-close aria-label="Close project">Close <span>Esc</span></button>
+      <div class="panel-scroll">
+        <p class="panel-kicker"></p>
+        <h2 id="panel-title" class="panel-title"></h2>
+        <figure class="panel-cover"><img alt="" /></figure>
+        <p class="panel-lede"></p>
+        <dl class="panel-facts"></dl>
+        <div class="panel-body"></div>
+        <p class="panel-credits"></p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Custom cursor -->
+  <div id="cursor" class="cursor" aria-hidden="true">
+    <div class="cursor-ring"><span class="cursor-label">View</span></div>
+    <div class="cursor-dot"></div>
+  </div>
+
+  <!-- Fallback (no WebGL / no JS) -->
+  <section id="fallback" class="fallback" hidden>
+    <h1>Monolith</h1>
+    <p>This exhibition needs WebGL to build its architecture. Here is the archive in plain form.</p>
+    <ol id="fallback-list"></ol>
+  </section>
+  <noscript><style>.loader{display:none}</style><p class="noscript">Monolith needs JavaScript to build its architecture.</p></noscript>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

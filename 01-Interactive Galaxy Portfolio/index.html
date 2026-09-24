@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#020203" />
+    <meta name="description" content="Iris Vale — creative technologist. A catalogue of five worlds: interactive, real-time and data-driven projects." />
+    <title>Iris Vale — A Catalogue of Worlds</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='7' fill='%23ffd2a1'/%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23ffd2a1' stroke-opacity='.4'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <canvas class="webgl" aria-hidden="true"></canvas>
+
+    <!-- Loading ------------------------------------------------------------>
+    <div class="loader" role="progressbar" aria-label="Loading the galaxy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <p class="loader__eyebrow mono" data-loader-fade>Calibrating instruments</p>
+      <div class="loader__count serif"><span data-count>000</span></div>
+      <div class="loader__bar"><span data-bar></span></div>
+      <p class="loader__step mono" data-step data-loader-fade>Resolving typefaces</p>
+      <p class="loader__foot mono" data-loader-fade>A catalogue of five worlds</p>
+    </div>
+
+    <!-- Interface chrome --------------------------------------------------->
+    <div class="hud" data-hud>
+      <header class="hud__top">
+        <button type="button" class="brand" data-home data-hud-in="down" aria-label="Iris Vale — back to origin">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name serif">Iris Vale</span>
+          <span class="brand__role mono">Creative technologist</span>
+        </button>
+        <button type="button" class="sound mono" data-sound data-hud-in="down" aria-pressed="false">
+          <span class="sound__bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span data-sound-label>Sound off</span>
+        </button>
+      </header>
+
+      <nav class="rail" aria-label="Sections" data-hud-in="up">
+        <ol data-rail></ol>
+        <span class="rail__track" aria-hidden="true"><span class="rail__fill" data-rail-fill></span></span>
+      </nav>
+
+      <footer class="hud__bottom">
+        <div class="coords mono" aria-hidden="true" data-hud-in="up">
+          <span>RA <b data-ra>00h 00m</b></span>
+          <span>DEC <b data-dec>+00° 00′</b></span>
+          <span>Δ <b data-dist>00000</b> ly</span>
+        </div>
+        <div class="hint mono" data-hint data-hud-in="up">
+          <span class="hint__line" aria-hidden="true"></span>
+          <span class="hint__text hint__text--wheel">Scroll to travel</span>
+          <span class="hint__text hint__text--touch">Swipe to travel</span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Section copy ------------------------------------------------------->
+    <section class="copy copy--intro" data-intro aria-labelledby="intro-title">
+      <p class="copy__eyebrow mono" data-fade>00 — Origin · Selected work 2023 → 2025</p>
+      <h1 class="copy__title serif" id="intro-title">
+        <span data-line><span><span data-owner-name>Iris Vale</span> builds</span></span>
+        <span data-line><span><em>small universes</em></span></span>
+        <span data-line><span>for the web.</span></span>
+      </h1>
+      <p class="copy__body" data-fade>
+        Creative technologist working where real-time graphics, data and interface design overlap.
+        Every world in this system is a project — travel between them, or land on one to read its story.
+      </p>
+    </section>
+
+    <section class="copy copy--outro" data-outro aria-labelledby="outro-title">
+      <p class="copy__eyebrow mono" data-fade>06 — Signal</p>
+      <h2 class="copy__title serif" id="outro-title">
+        <span data-line><span>Have a world</span></span>
+        <span data-line><span><em>worth building?</em></span></span>
+      </h2>
+      <a class="copy__mail serif" data-mail data-fade href="#">hello</a>
+      <ul class="copy__links mono" data-links data-fade></ul>
+      <p class="copy__meta mono" data-fade><span data-location></span> · Booking projects for 2027</p>
+    </section>
+
+    <!-- Planet annotations (positioned every frame) ------------------------>
+    <div class="labels" aria-hidden="true" data-labels></div>
+
+    <!-- Project dossier ---------------------------------------------------->
+    <aside class="panel" role="dialog" aria-labelledby="panel-title" data-panel data-scroll-lock hidden>
+      <button type="button" class="panel__close mono" data-close>
+        <span>Return to orbit</span><kbd>Esc</kbd>
+      </button>
+      <div class="panel__body" data-panel-body></div>
+    </aside>
+
+    <!-- Cursor ------------------------------------------------------------->
+    <div class="cursor" aria-hidden="true" data-cursor-root>
+      <div class="cursor__ring"><span class="cursor__text"></span></div>
+      <div class="cursor__dot"></div>
+    </div>
+
+    <div class="sr-only" aria-live="polite" data-announcer></div>
+
+    <!-- Static fallback when WebGL is unavailable -------------------------->
+    <main class="fallback" data-fallback hidden>
+      <p class="mono">Iris Vale · Creative technologist</p>
+      <h1 class="serif">A catalogue of <em>five worlds</em></h1>
+      <p class="fallback__note">Your browser can't render the interactive galaxy, so here is the plain-text archive.</p>
+      <ol data-fallback-list></ol>
+    </main>
+
+    <noscript>
+      <p style="padding: 2rem; color: #ece6db; font-family: serif">This portfolio is an interactive WebGL experience and needs JavaScript.</p>
+    </noscript>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

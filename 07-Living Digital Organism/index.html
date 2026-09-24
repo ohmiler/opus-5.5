@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Specimen Ψ-07</title>
+  <meta name="description" content="An unnamed generative organism, cultured in WebGL." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..600;1,9..144,200..500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body class="is-loading">
+  <canvas id="stage" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
+
+  <!-- Loading sequence -->
+  <div id="loader" role="status" aria-live="polite">
+    <div class="loader__count"><span id="loader-num">000</span></div>
+    <div class="loader__bar"><i id="loader-bar"></i></div>
+    <p class="loader__stage mono" id="loader-stage">preparing culture medium</p>
+  </div>
+
+  <!-- Persistent frame / HUD -->
+  <header class="frame mono">
+    <div class="frame__id">SPECIMEN Ψ-07 <span class="dim">/ unclassified</span></div>
+    <button class="frame__sound" id="sound-toggle" type="button" aria-pressed="false">sound <span>off</span></button>
+  </header>
+
+  <aside class="hud mono" aria-hidden="true">
+    <div><span class="dim">resp</span> <b id="hud-resp">--</b></div>
+    <div><span class="dim">prox</span> <b id="hud-prox">--</b></div>
+    <div><span class="dim">agit</span> <b id="hud-agit">--</b></div>
+    <div><span class="dim">gen&nbsp;</span> <b id="hud-gen">000</b></div>
+    <div><span class="dim">t+&nbsp;&nbsp;</span> <b id="hud-clock">00:00</b></div>
+  </aside>
+
+  <div class="whisper mono" id="whisper" aria-hidden="true"></div>
+
+  <nav class="progress mono" aria-hidden="true">
+    <ol id="progress-list"></ol>
+  </nav>
+
+  <!-- Narrative -->
+  <main id="narrative">
+    <section class="chapter chapter--hero" data-index="0">
+      <p class="eyebrow mono">field notes · entry 01</p>
+      <h1 class="display">An unnamed thing,<br /><em>breathing.</em></h1>
+      <p class="lede">It was grown, not modelled. Every surface, filament and spore is computed each frame from noise — no two moments of its life are the same.</p>
+      <p class="hint mono"><span class="hint__line"></span>scroll to observe</p>
+    </section>
+
+    <section class="chapter chapter--left" data-index="1">
+      <p class="eyebrow mono">01 — membrane</p>
+      <h2 class="display">Skin made of <em>weather.</em></h2>
+      <p>The body is a sphere pushed out of shape by layered simplex noise, domain-warped against itself. Its lobes drift on incommensurate clocks, so the form never returns to where it began.</p>
+      <dl class="specs mono"><div><dt>vertices</dt><dd id="spec-verts">—</dd></div><div><dt>noise octaves</dt><dd>4, warped</dd></div></dl>
+    </section>
+
+    <section class="chapter chapter--right" data-index="2">
+      <p class="eyebrow mono">02 — filaments</p>
+      <h2 class="display">It reaches<br /><em>toward you.</em></h2>
+      <p>Hundreds of filaments grow from polyp clusters. They sway on their own currents — and lean, cautiously, toward the nearest warm thing. Move closer.</p>
+      <dl class="specs mono"><div><dt>filaments</dt><dd id="spec-tent">—</dd></div><div><dt>behaviour</dt><dd>curious, then shy</dd></div></dl>
+    </section>
+
+    <section class="chapter chapter--center" data-index="3">
+      <p class="eyebrow mono">03 — temperament</p>
+      <h2 class="display">Touch it, and it <em>defends.</em></h2>
+      <p>Click to provoke. It will bristle, recoil and exhale its spores. Provoke it too often and it learns that you are harmless.</p>
+    </section>
+
+    <section class="chapter chapter--left" data-index="4">
+      <p class="eyebrow mono">04 — evolution</p>
+      <h2 class="display">Left alone, it <em>becomes</em> something else.</h2>
+      <p>When you stop moving, the organism begins to mutate: its genome — a point drifting through noise space — wanders, and the body follows. Nothing is looped; the path is never retraced.</p>
+    </section>
+
+    <section class="chapter chapter--outro" data-index="5">
+      <p class="eyebrow mono">end of observation</p>
+      <h2 class="display">It will not look like this <em>tomorrow.</em></h2>
+      <p class="mono small">Three.js · GLSL simplex noise · procedural geometry · no textures, no models.</p>
+      <button class="again mono" id="again" type="button">observe again ↑</button>
+    </section>
+  </main>
+
+  <!-- Custom cursor -->
+  <div class="cursor" aria-hidden="true">
+    <div class="cursor__ring"><span class="cursor__label mono"></span></div>
+    <div class="cursor__dot"></div>
+  </div>
+
+  <noscript><p class="nogl">This specimen needs JavaScript to live.</p></noscript>
+  <div class="nogl" id="nogl" hidden>
+    <p class="eyebrow mono">specimen unavailable</p>
+    <h2 class="display">Your browser can't culture this organism <em>(WebGL is off).</em></h2>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

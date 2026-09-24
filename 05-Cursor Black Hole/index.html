@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Singularity — A Study in Gravity</title>
+  <meta name="description" content="An interactive study of gravity. Your cursor carries mass: move to attract, hold to deepen the well, release to let it go." />
+  <meta name="theme-color" content="#050507" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="styles/main.css" />
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="src/main.js"></script>
+
+  <noscript>
+    <style>
+      .loader, .cursor, .readout { display: none !important; }
+      body.is-loading { overflow: auto; }
+      .reveal, [data-split] { opacity: 1 !important; transform: none !important; filter: none !important; }
+    </style>
+  </noscript>
+</head>
+
+<body class="is-loading">
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="atmos" aria-hidden="true"></div>
+
+  <!-- Loading: the curtain collapses into a point, and the scene is born from it. -->
+  <div class="loader" id="loader" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <div class="loader__inner">
+      <span class="loader__label">Calibrating mass</span>
+      <span class="loader__count" data-count>000</span>
+      <span class="loader__track"><span class="loader__bar"></span></span>
+      <span class="loader__step" data-step>Loading typography</span>
+    </div>
+  </div>
+
+  <header class="hud hud--top">
+    <a class="brand" href="#top" data-go="0" data-cursor="Surface">Singularity</a>
+    <p class="hud__chapter" aria-live="polite">
+      <span data-chapter-index>01</span><span class="hud__sep">/</span><span data-chapter-total>05</span>
+      <span class="hud__name" data-chapter-name>Attraction</span>
+    </p>
+  </header>
+
+  <nav class="rail" aria-label="Chapters">
+    <button data-go="0" aria-label="Chapter 1: Attraction" data-cursor="Attraction"><i></i></button>
+    <button data-go="1" aria-label="Chapter 2: Orbit" data-cursor="Orbit"><i></i></button>
+    <button data-go="2" aria-label="Chapter 3: Structure" data-cursor="Structure"><i></i></button>
+    <button data-go="3" aria-label="Chapter 4: Curvature" data-cursor="Curvature"><i></i></button>
+    <button data-go="4" aria-label="Chapter 5: Horizon" data-cursor="Horizon"><i></i></button>
+  </nav>
+
+  <div class="hud hud--bottom">
+    <p class="readout" aria-hidden="true">
+      <span class="readout__key">M</span><span class="readout__value" data-mass>0.00</span><span class="readout__unit">M&#8857;</span>
+      <span class="readout__state" data-state>at rest</span>
+    </p>
+    <button class="sound" type="button" data-sound aria-pressed="false" data-cursor="Listen">
+      <span class="sound__bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span data-sound-label>Sound off</span>
+    </button>
+  </div>
+
+  <div class="cursor" aria-hidden="true">
+    <div class="cursor__shock"><i></i></div>
+    <div class="cursor__ring">
+      <svg viewBox="0 0 100 100">
+        <circle class="cursor__track" cx="50" cy="50" r="46" />
+        <circle class="cursor__charge" cx="50" cy="50" r="46" pathLength="1" />
+      </svg>
+    </div>
+    <div class="cursor__dot"></div>
+    <span class="cursor__label" data-cursor-label></span>
+  </div>
+
+  <main id="top">
+    <section class="hero" data-chapter="0">
+      <p class="eyebrow reveal">A study in gravity &mdash; N&deg;01</p>
+      <h1 class="hero__title" data-split data-lens>Everything falls <em>toward you.</em></h1>
+      <p class="hero__lede reveal" style="--d: .55s">Your cursor carries mass. Move to attract. Hold to deepen the well. Release to let it all go.</p>
+      <div class="hero__cue reveal" style="--d: 1s"><span>Scroll to fall further</span><i></i></div>
+    </section>
+
+    <section class="chapter" data-chapter="1" data-side="1">
+      <div class="chapter__inner">
+        <p class="meta reveal"><span>II</span><i></i><span>Orbit</span></p>
+        <h2 data-split data-lens>Nothing falls <em>straight in.</em></h2>
+        <p class="body reveal" style="--d: .3s">Sideways speed turns a fall into an orbit. Near the centre, matter circles faster than anywhere else: the inner rings finish a lap while the outer ones are still turning.</p>
+        <p class="hint reveal" style="--d: .45s"><b></b>Sweep the cursor through the disk</p>
+        <dl class="datum reveal" style="--d: .55s">
+          <div><dt>Law</dt><dd>v &prop; r<sup>&minus;&frac12;</sup></dd></div>
+          <div><dt>Bodies</dt><dd data-count-bodies>65,536</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="chapter" data-chapter="2" data-side="-1">
+      <div class="chapter__inner">
+        <p class="meta reveal"><span>III</span><i></i><span>Structure</span></p>
+        <h2 data-split data-lens>Given time, gravity <em>writes spirals.</em></h2>
+        <p class="body reveal" style="--d: .3s">There is no architect and no blueprint, only countless small attractions, each pulling on its neighbours. At this scale, patience is what structure looks like.</p>
+        <p class="hint reveal" style="--d: .45s"><b></b>Hold over the core and feel it tighten</p>
+        <dl class="datum reveal" style="--d: .55s">
+          <div><dt>Arms</dt><dd>3</dd></div>
+          <div><dt>Pitch</dt><dd>24.4&deg;</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="chapter" data-chapter="3" data-side="1">
+      <div class="chapter__inner">
+        <p class="meta reveal"><span>IV</span><i></i><span>Curvature</span></p>
+        <h2 data-split data-lens>Space is not a stage. <em>It bends.</em></h2>
+        <p class="body reveal" style="--d: .3s">Mass tells the fabric how to curve, and the fabric tells matter how to move. The dip beneath your cursor is your own weight, pressed into the grid.</p>
+        <p class="hint reveal" style="--d: .45s"><b></b>Hold to sink the fabric &middot; click to lift it</p>
+        <dl class="datum reveal" style="--d: .55s">
+          <div><dt>Field</dt><dd>G<sub>&mu;&nu;</sub> = 8&pi;G T<sub>&mu;&nu;</sub></dd></div>
+          <div><dt>Wells</dt><dd>2</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="finale" data-chapter="4">
+      <p class="meta reveal"><span>V</span><i></i><span>Horizon</span></p>
+      <h2 data-split data-lens>Hold. <em>Then let go.</em></h2>
+      <p class="body reveal" style="--d: .3s">Past the event horizon nothing returns, except whatever you choose to release. Press anywhere and keep holding.</p>
+      <button class="cta reveal" type="button" style="--d: .5s" data-go="0" data-cursor="Rise">
+        <span>Fall again</span><span aria-hidden="true">&uarr;</span>
+      </button>
+    </section>
+  </main>
+
+  <footer class="colophon">
+    <span>Singularity &mdash; a study in gravity</span>
+    <span>Three.js &middot; GPU simulation &middot; <span data-count-bodies>65,536</span> bodies</span>
+    <span>&copy; 2026</span>
+  </footer>
+</body>
+</html>

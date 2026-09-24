@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#05060d" />
+    <meta name="description" content="Nova Kitamura — creative technologist. An explorable neon district portfolio." />
+    <title>Nova Kitamura — District 07</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Unbounded:wght@300;500;800;900&display=swap"
+    />
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <canvas id="scene" aria-hidden="true"></canvas>
+
+    <!-- Loader -->
+    <div class="loader" id="loader" role="status" aria-live="polite">
+      <div class="loader__scan" aria-hidden="true"></div>
+      <div class="loader__inner">
+        <p class="loader__eyebrow">District 07 · Night shift</p>
+        <h1 class="loader__brand">Nova<br />Kitamura</h1>
+        <div class="loader__meter">
+          <span class="loader__pct" id="loader-pct">000</span>
+          <div class="loader__bar"><i id="loader-bar"></i></div>
+        </div>
+        <ul class="loader__log" id="loader-log" aria-hidden="true"></ul>
+        <button class="loader__enter" id="loader-enter" type="button" disabled>
+          <span>Enter the district</span>
+        </button>
+        <p class="loader__hint">Scroll to walk · Click a lit building to enter</p>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud" id="hud" aria-hidden="true">
+      <header class="hud__top">
+        <button class="hud__brand" type="button" data-action="home" data-cursor="link">
+          <span class="hud__mark">NK</span>
+          <span class="hud__brand-text"><b>Nova Kitamura</b><small>Creative Technologist</small></span>
+        </button>
+        <div class="hud__right">
+          <p class="hud__readout" id="hud-readout">Z +034.0 · ST.07</p>
+          <button class="hud__sound" id="hud-sound" type="button" aria-pressed="false" data-cursor="link">
+            <span class="hud__bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span class="hud__sound-label">Sound off</span>
+          </button>
+        </div>
+      </header>
+
+      <nav class="rail" id="rail" aria-label="Sections"></nav>
+
+      <div class="beacon" id="beacon" aria-hidden="true">
+        <span class="beacon__index"></span>
+        <span class="beacon__title"></span>
+        <span class="beacon__cta"></span>
+      </div>
+
+      <div class="hint" id="hint">
+        <span class="hint__line" aria-hidden="true"></span>
+        <span class="hint__text">Scroll to walk</span>
+      </div>
+    </div>
+
+    <!-- Holographic panel -->
+    <svg class="leader" id="leader" aria-hidden="true">
+      <line x1="0" y1="0" x2="0" y2="0" />
+      <circle r="4" />
+      <circle r="12" class="leader__halo" />
+    </svg>
+    <aside class="holo" id="holo" role="dialog" aria-modal="false" aria-labelledby="holo-title" hidden>
+      <div class="holo__frame">
+        <div class="holo__noise" aria-hidden="true"></div>
+        <header class="holo__head">
+          <span class="holo__index" id="holo-index">01 / 04</span>
+          <span class="holo__kicker" id="holo-kicker"></span>
+          <button class="holo__close" id="holo-close" type="button" data-cursor="link" aria-label="Close panel">
+            <kbd>Esc</kbd> Close
+          </button>
+        </header>
+        <h2 class="holo__title" id="holo-title"></h2>
+        <div class="holo__body" id="holo-body"></div>
+        <footer class="holo__foot">
+          <button type="button" data-nav="-1" data-cursor="link"><span aria-hidden="true">←</span> <em></em></button>
+          <button type="button" data-nav="1" data-cursor="link"><em></em> <span aria-hidden="true">→</span></button>
+        </footer>
+      </div>
+    </aside>
+
+    <!-- Cursor -->
+    <div class="cursor" id="cursor" aria-hidden="true">
+      <div class="cursor__ring"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" /></svg></div>
+      <div class="cursor__dot"></div>
+      <div class="cursor__label"><small></small><b></b></div>
+    </div>
+
+    <!-- No-WebGL / no-JS fallback -->
+    <main class="fallback" id="fallback" hidden></main>
+    <noscript>
+      <main class="fallback">
+        <h1>Nova Kitamura</h1>
+        <p>This portfolio is an explorable 3D district and needs JavaScript. Reach me at hello@example.com.</p>
+      </main>
+    </noscript>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

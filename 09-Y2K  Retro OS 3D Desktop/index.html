@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Millennium OS</title>
+  <meta name="description" content="An interactive 3D desktop from an alternate year 2000. Drag things, open folders, spin CDs, find secrets." />
+  <meta name="theme-color" content="#041a3d" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="scene" aria-label="Interactive 3D desktop. Use the Start menu to open sections with the keyboard."></canvas>
+  <canvas id="sparkles" aria-hidden="true"></canvas>
+
+  <header id="hud">
+    <div class="hud__brand"><span class="hud__logo" aria-hidden="true">✦</span>MILLENNIUM&nbsp;OS<em>v2.000</em></div>
+    <p class="hud__hint" id="hint">drag anything · double-click folders · type to talk</p>
+    <div class="hud__secrets" id="secrets" title="Secrets found">
+      <span class="hud__label">secrets</span><span class="hud__pips"></span>
+    </div>
+  </header>
+
+  <div id="fallback" hidden>
+    <p class="fallback__note">3D acceleration unavailable — running in Safe Mode.</p>
+    <div class="fallback__grid"></div>
+  </div>
+
+  <div id="windows"></div>
+
+  <div id="startmenu" class="startmenu" hidden>
+    <div class="startmenu__side" aria-hidden="true">MILLENNIUM<b>OS</b></div>
+    <ul class="startmenu__list" role="menu"></ul>
+  </div>
+
+  <nav id="taskbar" aria-label="Taskbar">
+    <button class="start" id="startBtn" aria-haspopup="menu" aria-expanded="false"><span class="start__orb" aria-hidden="true"></span>Start</button>
+    <div class="tasks" id="tasks"></div>
+    <div class="tray">
+      <button id="soundBtn" class="tray__btn" aria-pressed="false" title="Toggle sound">♪ OFF</button>
+      <button id="clock" class="tray__clock" title="Clock">--:--</button>
+    </div>
+  </nav>
+
+  <div id="toasts" aria-live="polite"></div>
+
+  <div id="shutdown" hidden>
+    <p>It's now safe to turn off<br />your computer.</p>
+    <small>(click anywhere to reboot)</small>
+  </div>
+
+  <div id="loader">
+    <div class="boot">
+      <div class="boot__disc" aria-hidden="true"></div>
+      <h1 class="boot__title">MILLENNIUM OS</h1>
+      <p class="boot__sub">alternate edition · build 12.31.1999</p>
+      <div class="boot__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+      <div class="boot__status"><span id="bootMsg">Starting up…</span><span id="bootPct">0%</span></div>
+      <div class="boot__start">
+        <button class="gel-btn" data-boot="sound">▶ Boot with sound</button>
+        <button class="gel-btn gel-btn--ghost" data-boot="silent">Boot silently</button>
+      </div>
+    </div>
+    <small class="boot__copy">© 2000 Alternate Computing Corp. All rights reversed.</small>
+  </div>
+
+  <div id="cursor" aria-hidden="true">
+    <svg width="26" height="34" viewBox="0 0 13 17" shape-rendering="crispEdges">
+      <defs>
+        <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ffffff" /><stop offset=".5" stop-color="#bfeaff" /><stop offset="1" stop-color="#3bb9ff" />
+        </linearGradient>
+      </defs>
+      <path d="M.5 .5 V13.5 L3.5 10.5 L6 16 L8 15 L5.7 9.8 H9.8 Z" fill="url(#cg)" stroke="#062a5a" stroke-width="1" stroke-linejoin="miter" />
+    </svg>
+    <span class="cursor__ring"></span>
+  </div>
+
+  <noscript><div class="noscript">Millennium OS requires JavaScript. It was the year 2000, after all.</div></noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

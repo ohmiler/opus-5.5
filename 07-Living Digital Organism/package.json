@@ -1,0 +1,6 @@
+{
+  "name": "specimen-psi-07",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "npx --yes serve -l 5731 ." }
+}

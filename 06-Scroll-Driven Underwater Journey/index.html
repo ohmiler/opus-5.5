@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Descent — A Journey to the Abyss</title>
+  <meta name="description" content="An interactive descent from the sunlit surface to the abyss.">
+  <meta name="theme-color" content="#020912">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body class="is-loading">
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <div class="fx vignette" aria-hidden="true"></div>
+  <div class="fx grain" aria-hidden="true"></div>
+  <div class="fx blackout" aria-hidden="true"></div>
+  <div class="fx letterbox" aria-hidden="true"></div>
+
+  <!-- Loading sequence -->
+  <div class="loader" role="dialog" aria-modal="true" aria-labelledby="loader-title">
+    <div class="loader__inner">
+      <p class="eyebrow">An interactive descent · 4,600 m</p>
+      <h1 id="loader-title" class="loader__title">Descent</h1>
+      <div class="loader__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span></span></div>
+      <div class="loader__meta">
+        <span class="loader__status">Preparing</span>
+        <span class="loader__pct">000</span>
+      </div>
+      <div class="loader__actions">
+        <button class="btn btn--primary" data-start="sound">Descend with sound</button>
+        <button class="btn" data-start="silent">In silence</button>
+      </div>
+      <p class="loader__hint">Headphones recommended · Scroll to dive</p>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <header class="hud">
+    <div class="hud__brand">Descent</div>
+    <button class="hud__sound" aria-pressed="false">Sound <span>off</span></button>
+  </header>
+
+  <aside class="gauge" aria-live="polite">
+    <div class="gauge__track"><span class="gauge__fill"></span><span class="gauge__marker"></span></div>
+    <div class="gauge__readout"><span class="gauge__depth">0000</span><small>m</small></div>
+    <div class="gauge__zone">Sunlight Zone</div>
+  </aside>
+
+  <!-- Narrative -->
+  <main class="chapters">
+    <article class="chapter chapter--hero" data-range="-1,0.07">
+      <p class="eyebrow">00 · The Surface · 0 m</p>
+      <h2>Every descent<br><em>begins in light.</em></h2>
+    </article>
+    <article class="chapter" data-range="0.1,0.19">
+      <p class="eyebrow">01 · 150 m</p>
+      <h2>Red is the first colour<br>the ocean <em>takes from you.</em></h2>
+    </article>
+    <article class="chapter chapter--right" data-range="0.26,0.38">
+      <p class="eyebrow">02 · Twilight Zone · 500 m</p>
+      <h2>Here, sunlight thins<br>to <em>a rumour.</em></h2>
+      <p class="body">Jellyfish drift on currents older than coastlines.</p>
+    </article>
+    <article class="chapter" data-range="0.42,0.5">
+      <p class="eyebrow">03 · 900 m</p>
+      <h2>The last of the blue<br><em>lets go.</em></h2>
+    </article>
+    <article class="chapter chapter--center" data-range="0.56,0.66">
+      <p class="eyebrow">04 · Midnight Zone · 2,000 m</p>
+      <h2>Where there is no sun,<br><em>life makes its own.</em></h2>
+      <p class="body hint">Reach toward the lights.</p>
+    </article>
+    <article class="chapter chapter--right" data-range="0.7,0.79">
+      <p class="eyebrow">05 · 3,500 m</p>
+      <h2>Three in four creatures here<br><em>can glow.</em></h2>
+    </article>
+    <article class="chapter chapter--anchor" data-range="0.9,2" data-anchor="beacon">
+      <p class="eyebrow">06 · 4,600 m · Uncharted</p>
+      <h2><em>Something was here</em><br>before us.</h2>
+      <p class="body hint">Touch the light.</p>
+    </article>
+  </main>
+
+  <div class="scroll-hint" aria-hidden="true">Scroll to descend<span></span></div>
+
+  <div class="cursor" aria-hidden="true">
+    <div class="cursor__ring"></div>
+    <div class="cursor__dot"></div>
+    <div class="cursor__label"></div>
+  </div>
+
+  <div class="scroll-space"></div>
+
+  <noscript><p class="noscript">This experience requires JavaScript and WebGL.</p></noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "singularity",
+  "private": true,
+  "version": "1.0.0",
+  "description": "An interactive study of gravity — the cursor is a black hole.",
+  "type": "module",
+  "scripts": {
+    "start": "npx --yes http-server . -p 5188 -c-1 --silent -o"
+  }
+}

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Nocturne — an endless archive of twenty works, hung in four rooms of an infinite digital museum." />
+    <title>Nocturne — An Endless Archive</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="styles/main.css" />
+
+    <script type="importmap">
+      { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }
+    </script>
+    <script type="module" src="src/main.js"></script>
+  </head>
+  <body>
+    <main id="app">
+      <div id="stage" class="stage"></div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+
+      <!-- Heads-up frame -->
+      <header id="hud" class="hud">
+        <div class="hud__brand hud__item" style="--d: 0">
+          <span class="hud__mark">Nocturne</span>
+          <span class="hud__sub">An endless archive<br />Twenty works, four rooms</span>
+        </div>
+
+        <div class="hud__room hud__item" style="--d: 1">
+          <span class="hud__caption">Now in room</span>
+          <span class="roll" data-hud-room></span>
+        </div>
+
+        <div class="hud__work hud__item" style="--d: 2" aria-live="polite">
+          <span class="roll hud__num" data-hud-index>01</span>
+          <span class="roll hud__title" data-hud-title></span>
+        </div>
+
+        <p class="hud__hint hud__item" style="--d: 3" data-hud-hint>
+          <span class="hud__hint-line" aria-hidden="true"></span>
+          <span class="only-pointer">Scroll or drag to wander &nbsp;·&nbsp; click a work to enter</span>
+          <span class="only-touch">Swipe to wander &nbsp;·&nbsp; tap a work to enter</span>
+        </p>
+
+        <div class="hud__controls hud__item" style="--d: 4">
+          <div class="hud__track" aria-hidden="true"><span data-hud-progress></span></div>
+          <button class="hud__sound" type="button" aria-pressed="false" data-hud-sound>
+            <span class="hud__eq" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span data-hud-sound-label>Sound off</span>
+          </button>
+        </div>
+
+        <nav class="hud__index" aria-label="Project index">
+          <h2>Index</h2>
+          <ol data-hud-list></ol>
+        </nav>
+      </header>
+
+      <!-- Project view (layered over the focused artwork) -->
+      <section id="detail" class="detail" tabindex="-1" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+        <div class="letterbox letterbox--top" aria-hidden="true"></div>
+        <div class="letterbox letterbox--bottom" aria-hidden="true"></div>
+        <div class="detail__shade" aria-hidden="true"></div>
+
+        <div class="detail__top">
+          <span class="detail__fade" style="--d: 0" data-detail-index></span>
+          <span class="detail__fade detail__room" style="--d: 1" data-detail-room></span>
+          <button class="detail__close detail__fade" style="--d: 2" type="button" data-detail-close>
+            <span>Close</span><span class="detail__x" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="detail__body">
+          <p class="detail__kicker detail__fade" style="--d: 1" data-detail-kicker></p>
+          <h2 id="detail-title" class="detail__title" data-detail-title></h2>
+          <p class="detail__desc detail__fade" style="--d: 4" data-detail-desc></p>
+          <dl class="detail__meta detail__fade" style="--d: 5">
+            <div><dt>Year</dt><dd data-detail-year></dd></div>
+            <div><dt>Client</dt><dd data-detail-client></dd></div>
+            <div><dt>Discipline</dt><dd data-detail-discipline></dd></div>
+          </dl>
+        </div>
+
+        <nav class="detail__nav detail__fade" style="--d: 6" aria-label="Browse projects">
+          <button type="button" data-detail-prev><span aria-hidden="true">←</span> Previous</button>
+          <button type="button" data-detail-next>Next <span aria-hidden="true">→</span></button>
+        </nav>
+      </section>
+
+      <!-- Loading sequence -->
+      <div id="loader" class="loader" role="status" aria-live="polite">
+        <div class="loader__top">
+          <span class="loader__mask"><span>Nocturne</span></span>
+          <span class="loader__mask"><span>An endless archive</span></span>
+        </div>
+        <div class="loader__count" aria-hidden="true">
+          <span class="loader__mask"><span data-loader-count>000</span></span>
+        </div>
+        <div class="loader__bottom">
+          <span class="loader__mask"><span data-loader-status>Opening the doors</span></span>
+          <span class="loader__mask loader__note"><span>Headphones optional</span></span>
+        </div>
+        <div class="loader__bar"><span data-loader-bar></span></div>
+      </div>
+
+      <div id="cursor" class="cursor" aria-hidden="true" data-state="idle">
+        <div class="cursor__ring"></div>
+        <div class="cursor__dot"></div>
+        <div class="cursor__label"></div>
+      </div>
+
+      <!-- Graceful fallback when WebGL is unavailable -->
+      <section id="fallback" class="fallback" hidden>
+        <header>
+          <p class="fallback__mark">Nocturne</p>
+          <h1>An endless archive</h1>
+          <p class="fallback__note">Your browser can’t open the 3D museum, so here is the catalogue.</p>
+        </header>
+        <ol id="fallback-list"></ol>
+      </section>
+
+      <noscript>
+        <p class="noscript">Nocturne is an interactive 3D gallery and needs JavaScript enabled.</p>
+      </noscript>
+    </main>
+  </body>
+</html>

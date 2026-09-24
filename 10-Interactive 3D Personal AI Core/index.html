@@ -1,0 +1,1196 @@
+<title>Orrery Core</title>
+<meta name="description" content="Orrery — an interactive computational core. Steer it, attract it, open it, and scroll through its layers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --ground:#060708;
+  --ink:#D8DADD;
+  --dim:#80858D;
+  --faint:#23272D;
+  --hair:rgba(216,218,221,.14);
+  --accent:#A9C7FF;
+  --accent-hi:#E6F0FF;
+  --display:"Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --gutter:clamp(16px, 4vw, 56px);
+}
+html,body{background:var(--ground);color:var(--ink)}
+body{font:300 15px/1.6 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.has-cursor, body.has-cursor a, body.has-cursor button, body.has-cursor input, body.has-cursor textarea{cursor:none}
+::selection{background:var(--accent);color:var(--ground)}
+a{color:inherit}
+:focus-visible{outline:1px solid var(--accent);outline-offset:4px}
+
+/* ---------- stage ---------- */
+#stage{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:pan-y}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.7) 100%)}
+.grain{position:fixed;inset:-50%;z-index:1;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation:grain 1.2s steps(6) infinite}
+@keyframes grain{0%{transform:translate(0,0)}33%{transform:translate(-3%,2%)}66%{transform:translate(2%,-3%)}100%{transform:translate(0,0)}}
+
+/* ---------- HUD ---------- */
+.hud{position:fixed;left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;
+  padding-inline:var(--gutter);font:400 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);pointer-events:none}
+.hud > *{pointer-events:auto}
+.hud-top{top:0;padding-top:calc(env(safe-area-inset-top,0px) + 22px)}
+.hud-bottom{bottom:0;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 22px)}
+.mark{display:flex;gap:10px;align-items:center;color:var(--ink);text-decoration:none}
+.mark svg{width:18px;height:18px}
+.readout{display:flex;gap:22px;font-variant-numeric:tabular-nums}
+.readout b{font-weight:400;color:var(--ink)}
+.readout .state b{color:var(--accent)}
+.btn-ghost{background:none;border:0;color:var(--dim);font:inherit;letter-spacing:inherit;text-transform:inherit;padding:8px 0;display:flex;gap:8px;align-items:center}
+.btn-ghost:hover{color:var(--ink)}
+.btn-ghost .bars{display:inline-flex;gap:2px;align-items:flex-end;height:10px}
+.btn-ghost .bars i{width:2px;background:currentColor;height:3px;transition:height .3s var(--ease-out)}
+.sound-on .btn-ghost .bars i{animation:eq .9s ease-in-out infinite alternate}
+.sound-on .btn-ghost .bars i:nth-child(2){animation-delay:-.3s}
+.sound-on .btn-ghost .bars i:nth-child(3){animation-delay:-.6s}
+@keyframes eq{from{height:2px}to{height:10px}}
+
+/* section index — a real sequence, so it is numbered */
+.index{position:fixed;right:var(--gutter);top:50%;transform:translateY(-50%);z-index:5;list-style:none;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:14px;font:400 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.index a{display:flex;align-items:center;justify-content:flex-end;gap:12px;color:var(--dim);text-decoration:none;padding:3px 0}
+.index a span{opacity:0;transform:translateX(6px);transition:opacity .4s var(--ease-out),transform .4s var(--ease-out)}
+.index a i{display:block;width:14px;height:1px;background:currentColor;transition:width .5s var(--ease-out)}
+.index a:hover span,.index a.on span{opacity:1;transform:none}
+.index a.on{color:var(--ink)}
+.index a.on i{width:34px;background:var(--accent)}
+
+/* ---------- content ---------- */
+main{position:relative;z-index:3}
+section{min-height:100vh;min-height:100svh;display:flex;align-items:center;padding-inline:var(--gutter);padding-block:14vh;box-sizing:border-box}
+section.right{justify-content:flex-end}
+.panel{max-width:30rem;width:100%;margin-right:clamp(0px,6vw,90px)}
+section.left .panel{margin-right:0;margin-left:0}
+section.right .panel{margin-right:clamp(40px,8vw,140px)}
+.eyebrow{font:400 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);display:flex;gap:14px;align-items:center;margin:0 0 28px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--accent)}
+h1,h2{font-family:var(--display);font-weight:400;letter-spacing:-.01em;line-height:.98;text-wrap:balance;margin:0}
+h2{font-size:clamp(40px,5.2vw,72px);margin-bottom:26px}
+h2 em,h1 em{font-style:italic;color:var(--accent-hi)}
+p{margin:0 0 1em;max-width:62ch;color:#B9BCC1}
+.mono{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--dim)}
+
+/* hero */
+#core{align-items:flex-end;padding-bottom:13vh}
+.hero{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;width:100%}
+.hero h1{font-size:clamp(52px,8.4vw,132px);max-width:11ch}
+.hero-side{display:flex;flex-direction:column;gap:18px;align-items:flex-start;max-width:17rem;padding-bottom:10px}
+.hint{list-style:none;margin:0;padding:0;display:grid;gap:8px;font:400 11px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.hint li{display:grid;grid-template-columns:62px 1fr;gap:10px}
+.hint li b{font-weight:400;color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:12px;background:none;border:1px solid var(--hair);color:var(--ink);
+  font:400 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:14px 18px;border-radius:0;
+  transition:border-color .4s var(--ease-out),background .4s var(--ease-out)}
+.btn:hover{border-color:var(--accent);background:rgba(169,199,255,.06)}
+.btn .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+
+/* identity */
+.facts{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:8px 42px;margin-top:34px;padding-top:22px;border-top:1px solid var(--hair)}
+.facts dt{font:400 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.facts dd{margin:0;font:400 34px/1 var(--display);font-variant-numeric:tabular-nums}
+.facts div{display:flex;flex-direction:column}
+
+/* capabilities */
+.caps{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
+.caps li{display:grid;grid-template-columns:1fr auto;gap:4px 20px;padding:16px 0;border-bottom:1px solid var(--hair);transition:padding .5s var(--ease-out)}
+.caps li:hover{padding-left:10px}
+.caps h3{margin:0;font:400 17px/1.3 var(--body);color:var(--ink)}
+.caps p{grid-column:1/-1;margin:0;font-size:13.5px;color:var(--dim);max-width:none}
+.caps .mono{align-self:center;white-space:nowrap}
+
+/* projects */
+.projects{list-style:none;margin:0;padding:0}
+.projects a{display:grid;grid-template-columns:3.2rem 1fr auto;gap:0 16px;align-items:baseline;padding:18px 0;border-top:1px solid var(--hair);text-decoration:none;position:relative}
+.projects li:last-child a{border-bottom:1px solid var(--hair)}
+.projects a::after{content:"";position:absolute;left:0;bottom:-1px;height:1px;width:0;background:var(--accent);transition:width .7s var(--ease-out)}
+.projects a:hover::after,.projects a:focus-visible::after{width:100%}
+.projects .yr{font:400 11px/1 var(--mono);color:var(--dim);font-variant-numeric:tabular-nums}
+.projects strong{font:400 30px/1.05 var(--display);transition:transform .6s var(--ease-out);display:inline-block}
+.projects a:hover strong{transform:translateX(8px);font-style:italic}
+.projects .desc{grid-column:2/-1;font-size:13.5px;color:var(--dim);margin-top:6px}
+.projects .kind{font:400 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+
+/* experiments */
+.runs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.run{background:rgba(6,7,8,.82);padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px;min-height:9.5rem;transition:background .4s var(--ease-out)}
+.run:hover{background:rgba(20,24,30,.9)}
+.run header{display:flex;justify-content:space-between;align-items:center;font:400 10.5px/1 var(--mono);letter-spacing:.08em;color:var(--dim);text-transform:uppercase}
+.chip{display:inline-flex;gap:6px;align-items:center}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;border:1px solid currentColor}
+.chip.live{color:var(--accent)}
+.chip.live::before{background:currentColor;box-shadow:0 0 8px currentColor;animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.3}}
+.run h3{margin:0;font:400 22px/1.1 var(--display)}
+.run p{margin:0;font-size:13px;color:var(--dim)}
+.run canvas{width:100%;height:26px;display:block;margin-top:auto}
+
+/* contact */
+#contact .panel{max-width:34rem}
+.addr{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:6px 0 30px}
+.addr span{font:400 clamp(26px,3.2vw,40px)/1 var(--display);user-select:all}
+.field{display:grid;gap:8px;margin-bottom:18px}
+.field label{font:400 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.field input,.field textarea{background:transparent;border:0;border-bottom:1px solid var(--hair);color:var(--ink);font:300 16px/1.5 var(--body);padding:8px 0;border-radius:0;resize:vertical;transition:border-color .4s}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent)}
+.form-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.status{font:400 11px/1.4 var(--mono);letter-spacing:.06em;color:var(--accent)}
+footer{padding:0 var(--gutter) 90px;position:relative;z-index:3;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+/* panel legibility: a soft field behind the text, not a card */
+.panel{position:relative}
+.panel::before{content:"";position:absolute;inset:-60px -80px;z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side, rgba(6,7,8,.72), rgba(6,7,8,0))}
+
+/* in-view motion: starts visible, drifts into place */
+.reveal{transition:transform 1.2s var(--ease-out),opacity 1.2s var(--ease-out)}
+.reveal.pending{transform:translateY(18px);opacity:.35}
+
+/* orbit labels projected from 3D */
+.labels{position:fixed;inset:0;z-index:2;pointer-events:none}
+.tag{position:absolute;left:0;top:0;font:400 10px/1.35 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  white-space:nowrap;will-change:transform;padding-left:14px;font-variant-numeric:tabular-nums;transition:opacity .5s}
+.tag::before{content:"";position:absolute;left:-3px;top:4px;width:5px;height:5px;border:1px solid var(--accent);border-radius:50%}
+.tag::after{content:"";position:absolute;left:4px;top:6px;width:8px;height:1px;background:var(--hair)}
+.tag b{display:block;font-weight:400;color:var(--ink)}
+
+/* ---------- cursor ---------- */
+.cursor{position:fixed;left:0;top:0;z-index:20;pointer-events:none;display:none}
+body.has-cursor .cursor{display:block}
+.cursor .ring{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border:1px solid rgba(216,218,221,.45);border-radius:50%;
+  transition:width .45s var(--ease-out),height .45s var(--ease-out),margin .45s var(--ease-out),border-color .45s,background .45s}
+.cursor .pip{position:absolute;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;background:var(--ink);border-radius:50%}
+.cursor .lbl{position:absolute;left:30px;top:-5px;font:400 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);opacity:0;transition:opacity .3s;white-space:nowrap}
+.cursor.core .ring{width:78px;height:78px;margin:-39px 0 0 -39px;border-color:var(--accent);border-style:dashed;animation:spin 8s linear infinite}
+.cursor.core .lbl{opacity:1;left:50px}
+.cursor.link .ring{width:12px;height:12px;margin:-6px 0 0 -6px;background:var(--ink);border-color:var(--ink)}
+.cursor.down .ring{transform:scale(.8)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- loader ---------- */
+.loader{position:fixed;inset:0;z-index:30;background:var(--ground);display:grid;place-items:center;transition:opacity 1.2s var(--ease-out),visibility 1.2s}
+.loader.done{opacity:0;visibility:hidden}
+.ld{width:min(360px,80vw);display:grid;gap:14px}
+.ld-top{display:flex;justify-content:space-between;align-items:baseline}
+.ld-num{font:400 64px/1 var(--display);font-variant-numeric:tabular-nums}
+.ld-step{font:400 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.ld-bar{height:1px;background:var(--faint);position:relative;overflow:hidden}
+.ld-bar i{position:absolute;inset:0;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform .35s var(--ease-out)}
+.ld-log{font:400 10.5px/1.7 var(--mono);color:#4C5159;min-height:5.2em;letter-spacing:.04em}
+
+.nogl .fallback{display:block}
+.fallback{display:none;position:fixed;inset:0;z-index:0;
+  background:radial-gradient(circle at 60% 45%, rgba(169,199,255,.16) 0, rgba(169,199,255,.04) 18%, transparent 36%),
+  repeating-radial-gradient(circle at 60% 45%, rgba(216,218,221,.07) 0 1px, transparent 1px 38px)}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width: 820px){
+  .index{display:none}
+  .readout .opt{display:none}
+  section{align-items:flex-end;padding-top:52vh}
+  section.right{justify-content:flex-start}
+  section.right .panel,.panel{margin:0}
+  #core{padding-top:0}
+  .hero{grid-template-columns:1fr}
+  .runs{grid-template-columns:1fr}
+  .facts{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 16px}
+  .facts dd{font-size:28px}
+  .projects strong{font-size:25px}
+  .tag{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  .grain{animation:none}
+  .reveal,.reveal.pending{transition:none;transform:none;opacity:1}
+  .cursor.core .ring{animation:none}
+}
+</style>
+
+<canvas id="stage" aria-hidden="true"></canvas>
+<div class="fallback" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="labels" id="labels" aria-hidden="true"></div>
+
+<div class="loader" id="loader" role="status" aria-live="polite">
+  <div class="ld">
+    <div class="ld-top"><span class="ld-num" id="ldNum">000</span><span class="ld-step" id="ldStep">Initialising</span></div>
+    <div class="ld-bar"><i id="ldBar"></i></div>
+    <div class="ld-log" id="ldLog"></div>
+  </div>
+</div>
+
+<header class="hud hud-top">
+  <a class="mark" href="#core" aria-label="Orrery, back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-24 12 12)"/><circle cx="21" cy="8" r="1" fill="currentColor"/></svg>
+    Orrery
+  </a>
+  <div class="readout" aria-hidden="true">
+    <span class="state">State <b id="rState">Assembling</b></span>
+    <span class="opt">Nodes <b id="rNodes">0</b></span>
+    <span class="opt">Layer <b id="rLayer">L0</b></span>
+  </div>
+  <button class="btn-ghost" id="soundBtn" aria-pressed="false"><span class="bars"><i></i><i></i><i></i></span><span id="soundLbl">Sound off</span></button>
+</header>
+
+<nav aria-label="Sections">
+  <ol class="index" id="index">
+    <li><a href="#core" data-i="0"><span>Core</span><i></i></a></li>
+    <li><a href="#identity" data-i="1"><span>Identity</span><i></i></a></li>
+    <li><a href="#capabilities" data-i="2"><span>Capabilities</span><i></i></a></li>
+    <li><a href="#projects" data-i="3"><span>Projects</span><i></i></a></li>
+    <li><a href="#experiments" data-i="4"><span>Experiments</span><i></i></a></li>
+    <li><a href="#contact" data-i="5"><span>Contact</span><i></i></a></li>
+  </ol>
+</nav>
+
+<div class="hud hud-bottom" aria-hidden="true">
+  <span class="readout"><span>X <b id="rX">+0.000</b></span><span>Y <b id="rY">+0.000</b></span></span>
+  <span class="readout"><span class="opt">Frame <b id="rMs">16.7</b> ms</span><span>t <b id="rT">0.0</b></span></span>
+</div>
+
+<main>
+  <section id="core" data-i="0">
+    <div class="hero">
+      <div>
+        <p class="eyebrow">Orrery / computational core, build 4.2</p>
+        <h1>A machine that keeps <em>rearranging</em> its mind.</h1>
+      </div>
+      <div class="hero-side">
+        <ul class="hint">
+          <li><b>Move</b><span>steer the core</span></li>
+          <li><b>Hover</b><span>attract its nodes</span></li>
+          <li><b>Click</b><span>open the inner layers</span></li>
+          <li><b>Scroll</b><span>separate the shells</span></li>
+        </ul>
+        <button class="btn" id="openBtn" data-pulse><span class="dot"></span><span id="openLbl">Open the core</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="identity" class="left" data-i="1">
+    <div class="panel reveal">
+      <p class="eyebrow">Layer 1 — Identity</p>
+      <h2>We build <em>instruments</em> for looking inside thinking machines.</h2>
+      <p>Orrery is an independent research studio. We make the tools that let people see what a model is doing while it does it — not dashboards after the fact, but live, navigable views of computation.</p>
+      <p>Everything on this page runs on the same idea: a system you can steer, perturb and open up, and that answers back.</p>
+      <dl class="facts">
+        <div><dt>Founded</dt><dd>2019</dd></div>
+        <div><dt>Researchers</dt><dd>11</dd></div>
+        <div><dt>Open tools</dt><dd>23</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="capabilities" class="right" data-i="2">
+    <div class="panel reveal">
+      <p class="eyebrow">Layer 2 — Capabilities</p>
+      <h2>Five shells, <em>five</em> disciplines.</h2>
+      <ul class="caps">
+        <li data-pulse><h3>Interpretability tooling</h3><span class="mono">L0 · activations</span><p>Probes, feature maps and circuit tracing, packaged for teams who ship models.</p></li>
+        <li data-pulse><h3>Agent simulation</h3><span class="mono">L1 · rollouts</span><p>Thousands of agents in reproducible worlds, instrumented down to the token.</p></li>
+        <li data-pulse><h3>Realtime visualisation</h3><span class="mono">L2 · WebGL / GPU</span><p>Million-point views that stay at 60 fps on a laptop.</p></li>
+        <li data-pulse><h3>Inference systems</h3><span class="mono">L3 · latency</span><p>Serving stacks tuned for observability, not just throughput.</p></li>
+        <li data-pulse><h3>Interface research</h3><span class="mono">L4 · humans</span><p>How people should touch, question and correct a model.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="projects" class="left" data-i="3">
+    <div class="panel reveal">
+      <p class="eyebrow">Layer 3 — Projects</p>
+      <h2>Selected <em>work</em>.</h2>
+      <ul class="projects">
+        <li><a href="#projects" data-pulse><span class="yr">2026</span><strong>Cartograph</strong><span class="kind">Tool</span><span class="desc">40 million activations folded into a map you can walk through.</span></a></li>
+        <li><a href="#projects" data-pulse><span class="yr">2025</span><strong>Tidewater</strong><span class="kind">Research</span><span class="desc">Watching attention drift across a 200k-token context, live.</span></a></li>
+        <li><a href="#projects" data-pulse><span class="yr">2024</span><strong>Halden Array</strong><span class="kind">Installation</span><span class="desc">A physical room of 4,096 LEDs driven by a running model.</span></a></li>
+        <li><a href="#projects" data-pulse><span class="yr">2023</span><strong>Quiet Channel</strong><span class="kind">Protocol</span><span class="desc">An open format for streaming model internals to any client.</span></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="experiments" class="right" data-i="4">
+    <div class="panel reveal">
+      <p class="eyebrow">Layer 4 — Experiments</p>
+      <h2>Running on the <em>bench</em>.</h2>
+      <div class="runs">
+        <article class="run" data-pulse><header><span>Run 0412</span><span class="chip live">Live</span></header><h3>Self-sorting shells</h3><p>Particles negotiate their own lattice without a target.</p><canvas data-spark="0"></canvas></article>
+        <article class="run" data-pulse><header><span>Run 0398</span><span class="chip live">Live</span></header><h3>Gradient weather</h3><p>Loss landscapes rendered as moving pressure fronts.</p><canvas data-spark="1"></canvas></article>
+        <article class="run" data-pulse><header><span>Run 0351</span><span class="chip">Paused</span></header><h3>Echo prompts</h3><p>What a model remembers of the question it just answered.</p><canvas data-spark="2"></canvas></article>
+        <article class="run" data-pulse><header><span>Run 0277</span><span class="chip">Archived</span></header><h3>Sparse chorus</h3><p>Sonifying 512 features as a slowly tuning choir.</p><canvas data-spark="3"></canvas></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="left" data-i="5">
+    <div class="panel reveal">
+      <p class="eyebrow">Layer 5 — Contact</p>
+      <h2>Bring us a system you <em>can't see into</em>.</h2>
+      <div class="addr"><span id="addr">hello@orrery.studio</span><button class="btn" id="copyBtn" type="button">Copy address</button></div>
+      <form id="form" novalidate>
+        <div class="field"><label for="f-email">Your email</label><input id="f-email" name="email" type="email" autocomplete="email" placeholder="you@lab.org"></div>
+        <div class="field"><label for="f-msg">What are you building?</label><textarea id="f-msg" name="msg" rows="3" placeholder="A model, a question, a deadline."></textarea></div>
+        <div class="form-row"><button class="btn" type="submit"><span class="dot"></span>Stage message</button><span class="status" id="status" role="status"></span></div>
+      </form>
+    </div>
+  </section>
+</main>
+<footer class="mono"><span>© 2026 Orrery Research</span><span>Rendered live · WebGL</span></footer>
+
+<div class="cursor" id="cursor" aria-hidden="true"><div class="ring"></div><div class="pip"></div><div class="lbl" id="cursorLbl">Click · open</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script>
+(() => {
+"use strict";
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const damp = (a, b, lambda, dt) => lerp(a, b, 1 - Math.exp(-lambda * dt));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const nextFrame = () => new Promise(r => requestAnimationFrame(r));
+
+/** Critically/under-damped spring — the source of every "physical" motion. */
+class Spring {
+  constructor(value = 0, stiffness = 120, damping = 18) { this.value = value; this.target = value; this.v = 0; this.k = stiffness; this.c = damping; }
+  step(dt) {
+    const steps = Math.ceil(dt / (1 / 120)), h = dt / steps;
+    for (let i = 0; i < steps; i++) { const a = this.k * (this.target - this.value) - this.c * this.v; this.v += a * h; this.value += this.v * h; }
+    return this.value;
+  }
+}
+
+const env = (() => {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  const narrow = () => window.innerWidth < 820;
+  return { mq, get reduced() { return mq.matches; }, coarse, narrow };
+})();
+
+/* ============================================================
+   Sound bus — sound-ready: every interaction emits a named event.
+   Off by default; when enabled, a tiny WebAudio synth voices it.
+   Integrators can listen to `core:sound` on window instead.
+   ============================================================ */
+class SoundBus {
+  constructor() { this.enabled = false; this.ctx = null; this.last = {}; }
+  enable(on) {
+    this.enabled = on;
+    if (on && !this.ctx) {
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.master = this.ctx.createGain(); this.master.gain.value = .18; this.master.connect(this.ctx.destination); } catch (e) { this.enabled = false; }
+    }
+    if (this.ctx && on) this.ctx.resume();
+  }
+  emit(name, detail = {}) {
+    window.dispatchEvent(new CustomEvent("core:sound", { detail: { name, ...detail } }));
+    if (!this.enabled || !this.ctx) return;
+    const now = performance.now();
+    if (now - (this.last[name] || 0) < 70) return; // rate-limit
+    this.last[name] = now;
+    const voices = {
+      hover:   [1760, .04, .05, "sine"],
+      pulse:   [880, .09, .08, "sine"],
+      expand:  [110, .9, .5, "sine"],
+      collapse:[220, .6, .3, "sine"],
+      section: [440, .25, .12, "triangle"],
+      ready:   [330, 1.2, .25, "sine"],
+    };
+    const v = voices[name]; if (!v) return;
+    const [f, dur, g, type] = v, t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator(), a = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (name === "expand") o.frequency.exponentialRampToValueAtTime(55, t + dur);
+    if (name === "collapse") o.frequency.exponentialRampToValueAtTime(440, t + dur);
+    a.gain.setValueAtTime(0, t); a.gain.linearRampToValueAtTime(g, t + .01); a.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(a).connect(this.master); o.start(t); o.stop(t + dur + .05);
+  }
+}
+
+/* ============================================================
+   Renderer + resize handling
+   ============================================================ */
+class Stage {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+    this.renderer.setClearColor(0x060708, 1);
+    this.scene = new THREE.Scene();
+    this.scene.fog = new THREE.Fog(0x060708, 5, 12);
+    this.maxDpr = env.coarse ? 1.5 : 1.75;
+    this.listeners = new Set();
+    this.onResize = this.onResize.bind(this);
+    window.addEventListener("resize", this.onResize);
+  }
+  get dpr() { return Math.min(window.devicePixelRatio || 1, this.maxDpr); }
+  onResize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    this.renderer.setPixelRatio(this.dpr);
+    this.renderer.setSize(w, h, false);
+    this.listeners.forEach(fn => fn(w, h, this.dpr));
+  }
+  onSize(fn) { this.listeners.add(fn); }
+  dispose() { window.removeEventListener("resize", this.onResize); this.renderer.dispose(); }
+}
+
+/* ============================================================
+   Camera rig — composes shots per section, eased with inertia.
+   ============================================================ */
+class CameraRig {
+  constructor(stage) {
+    this.camera = new THREE.PerspectiveCamera(34, 1, .1, 60);
+    this.pos = new THREE.Vector3(0, 0, 14); // starts far for the intro dolly
+    this.look = new THREE.Vector3();
+    this.goalPos = new THREE.Vector3(0, 0, 6.2);
+    this.goalLook = new THREE.Vector3();
+    this.parallax = new THREE.Vector2();
+    stage.onSize((w, h) => { this.camera.aspect = w / h; this.camera.updateProjectionMatrix(); });
+  }
+  update(dt, pointer, reduced) {
+    const k = reduced ? 6 : 2.2;
+    this.pos.x = damp(this.pos.x, this.goalPos.x, k, dt);
+    this.pos.y = damp(this.pos.y, this.goalPos.y, k, dt);
+    this.pos.z = damp(this.pos.z, this.goalPos.z, k * .8, dt);
+    this.look.x = damp(this.look.x, this.goalLook.x, k, dt);
+    this.look.y = damp(this.look.y, this.goalLook.y, k, dt);
+    this.look.z = damp(this.look.z, this.goalLook.z, k, dt);
+    const amt = reduced ? 0 : .18;
+    this.parallax.x = damp(this.parallax.x, pointer.x * amt, 3, dt);
+    this.parallax.y = damp(this.parallax.y, pointer.y * amt, 3, dt);
+    this.camera.position.set(this.pos.x + this.parallax.x, this.pos.y + this.parallax.y, this.pos.z);
+    this.camera.lookAt(this.look);
+  }
+}
+
+/* ============================================================
+   Shared line shader: a base stroke with a travelling pulse.
+   ============================================================ */
+const LINE_VS = `
+attribute float aT; attribute float aPhase; attribute float aSpeed;
+varying float vT; varying float vPhase; varying float vSpeed; varying float vFog;
+void main(){ vT=aT; vPhase=aPhase; vSpeed=aSpeed;
+  vec4 mv = modelViewMatrix*vec4(position,1.);
+  vFog = smoothstep(11.,4.,-mv.z);
+  gl_Position = projectionMatrix*mv; }`;
+const LINE_FS = `
+uniform float uTime; uniform float uBase; uniform float uPulse; uniform float uLen; uniform float uWrap; uniform float uOpacity;
+uniform vec3 uInk; uniform vec3 uAccent;
+varying float vT; varying float vPhase; varying float vSpeed; varying float vFog;
+void main(){
+  float h = fract(uTime*vSpeed + vPhase);
+  float d = uWrap > .5 ? fract(h - vT) : (h*1.5 - .25) - vT;
+  float p = (d > 0. && d < uLen) ? pow(1. - d/uLen, 2.5) : 0.;
+  float a = (uBase + p*uPulse) * uOpacity * (.4 + .6*vFog);
+  gl_FragColor = vec4(mix(uInk, uAccent, clamp(p*1.4,0.,1.)), a);
+}`;
+const COLORS = { ink: new THREE.Color("#D8DADD"), accent: new THREE.Color("#A9C7FF") };
+
+function lineMaterial(opts) {
+  return new THREE.ShaderMaterial({
+    vertexShader: LINE_VS, fragmentShader: LINE_FS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 }, uBase: { value: opts.base ?? .12 }, uPulse: { value: opts.pulse ?? .8 }, uLen: { value: opts.len ?? .2 },
+      uWrap: { value: opts.wrap ? 1 : 0 }, uOpacity: { value: 1 }, uInk: { value: COLORS.ink }, uAccent: { value: COLORS.accent },
+    },
+  });
+}
+
+/* ============================================================
+   Particle shells — the body of the core.
+   Two arrangements per particle (A: Fibonacci shell, B: bands/lattice);
+   the core continuously re-negotiates between them.
+   ============================================================ */
+const PARTICLE_VS = `
+uniform float uTime, uMorph, uExpand, uAssemble, uAttract, uPixel, uSize;
+uniform vec3 uPointer; uniform vec3 uOffset[5];
+attribute vec3 aA; attribute vec3 aB; attribute vec3 aScatter; attribute float aLayer; attribute float aRand;
+varying float vGlow, vLayer, vRand, vFog;
+void main(){
+  int li = int(aLayer + .5);
+  vec3 off = vec3(0.);
+  for (int i = 0; i < 5; i++) { if (i == li) off = uOffset[i]; }
+  float m = smoothstep(0., 1., clamp(uMorph*1.8 - aRand*.8, 0., 1.));
+  vec3 p = mix(aA, aB, m);
+  float t = uTime*.35;
+  p += vec3(sin(t + p.y*3.1 + aRand*6.28), sin(t*1.3 + p.z*2.7 + aRand*3.), cos(t*.9 + p.x*3.3 + aRand*5.)) * .018;
+  p *= 1. + .018*sin(uTime*1.1 + aLayer*1.4);
+  p *= 1. + uExpand*(.25 + aLayer*.34);
+  p = mix(aScatter, p, smoothstep(0., 1., clamp(uAssemble*1.4 - aRand*.4, 0., 1.)));
+  vec4 w = modelMatrix*vec4(p, 1.);
+  w.xyz += off;
+  vec3 d = uPointer - w.xyz;
+  float f = uAttract*exp(-dot(d,d)*5.);
+  w.xyz += d*f*.42;
+  vGlow = f; vLayer = aLayer; vRand = aRand;
+  vec4 mv = viewMatrix*w;
+  vFog = smoothstep(10., 3.5, -mv.z);
+  gl_Position = projectionMatrix*mv;
+  gl_PointSize = uSize*uPixel*(.55 + aRand*.9)*(1. + f*1.6)/-mv.z;
+}`;
+const PARTICLE_FS = `
+uniform vec3 uInk, uAccent; uniform float uExpand, uOpacity;
+varying float vGlow, vLayer, vRand, vFog;
+void main(){
+  vec2 c = gl_PointCoord - .5; float r = length(c);
+  if (r > .5) discard;
+  float a = smoothstep(.5, .05, r);
+  float inner = 1. - vLayer/4.;
+  float hot = clamp(vGlow*1.7 + uExpand*inner*.9 + step(.988, vRand)*.9, 0., 1.);
+  float alpha = a*(.32 + .42*vRand)*(.35 + .65*vFog)*uOpacity;
+  alpha *= mix(1., .3 + inner*1.2, uExpand);
+  gl_FragColor = vec4(mix(uInk, uAccent, hot), alpha);
+}`;
+
+class ParticleShells {
+  static RADII = [.42, .62, .82, 1.02, 1.22];
+  constructor(count) { this.count = count; }
+  /** Built in chunks so the loader can report real progress. */
+  async build(progress) {
+    const n = this.count, R = ParticleShells.RADII;
+    const A = new Float32Array(n * 3), B = new Float32Array(n * 3), S = new Float32Array(n * 3);
+    const L = new Float32Array(n), RND = new Float32Array(n);
+    // distribute by surface area
+    const w = R.map(r => r * r), wsum = w.reduce((a, b) => a + b, 0);
+    const per = w.map(x => Math.floor(n * x / wsum)); per[4] += n - per.reduce((a, b) => a + b, 0);
+    let idx = 0; const chunk = 2500; const golden = Math.PI * (3 - Math.sqrt(5));
+    for (let l = 0; l < 5; l++) {
+      const cnt = per[l], r = R[l], bands = 7 + l * 2, grid = 6 + l * 2;
+      for (let i = 0; i < cnt; i++, idx++) {
+        const rnd = Math.random(); RND[idx] = rnd; L[idx] = l;
+        // A: Fibonacci shell
+        const y = 1 - (i + .5) / cnt * 2, rad = Math.sqrt(1 - y * y), th = golden * i;
+        A[idx * 3] = Math.cos(th) * rad * r; A[idx * 3 + 1] = y * r; A[idx * 3 + 2] = Math.sin(th) * rad * r;
+        // B: latitude bands (even shells) or quantised cube lattice (odd shells)
+        if (l % 2 === 0) {
+          const k = Math.floor(Math.random() * bands), lat = -Math.PI / 2 + (k + .5) / bands * Math.PI, lon = Math.random() * Math.PI * 2;
+          B[idx * 3] = Math.cos(lat) * Math.cos(lon) * r; B[idx * 3 + 1] = Math.sin(lat) * r; B[idx * 3 + 2] = Math.cos(lat) * Math.sin(lon) * r;
+        } else {
+          const face = Math.floor(Math.random() * 6), ax = face % 3, sg = face < 3 ? 1 : -1;
+          const q = () => (Math.round((Math.random() * 2 - 1) * grid) / grid);
+          const v = [q(), q(), q()]; v[ax] = sg;
+          const s = r * .66; B[idx * 3] = v[0] * s; B[idx * 3 + 1] = v[1] * s; B[idx * 3 + 2] = v[2] * s;
+        }
+        // scatter origin for the assembly intro
+        const sr = 3 + Math.random() * 5, su = Math.random() * 2 - 1, sp = Math.random() * Math.PI * 2, sq = Math.sqrt(1 - su * su);
+        S[idx * 3] = sq * Math.cos(sp) * sr; S[idx * 3 + 1] = su * sr; S[idx * 3 + 2] = sq * Math.sin(sp) * sr;
+        if (idx % chunk === 0) { progress(idx / n); await nextFrame(); }
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(A, 3)); // used for bounds only
+    g.setAttribute("aA", new THREE.BufferAttribute(A, 3));
+    g.setAttribute("aB", new THREE.BufferAttribute(B, 3));
+    g.setAttribute("aScatter", new THREE.BufferAttribute(S, 3));
+    g.setAttribute("aLayer", new THREE.BufferAttribute(L, 1));
+    g.setAttribute("aRand", new THREE.BufferAttribute(RND, 1));
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 12);
+    this.uniforms = {
+      uTime: { value: 0 }, uMorph: { value: 0 }, uExpand: { value: 0 }, uAssemble: { value: 0 }, uAttract: { value: 0 },
+      uPixel: { value: 1 }, uSize: { value: 15 }, uPointer: { value: new THREE.Vector3(99, 99, 99) },
+      uOffset: { value: [0, 1, 2, 3, 4].map(() => new THREE.Vector3()) },
+      uInk: { value: COLORS.ink }, uAccent: { value: COLORS.accent }, uOpacity: { value: 1 },
+    };
+    this.material = new THREE.ShaderMaterial({ vertexShader: PARTICLE_VS, fragmentShader: PARTICLE_FS, uniforms: this.uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+    this.geometry = g;
+    this.points = new THREE.Points(g, this.material);
+    this.points.frustumCulled = false;
+    progress(1);
+    return this.points;
+  }
+  dispose() { this.geometry?.dispose(); this.material?.dispose(); }
+}
+
+/* ============================================================
+   Instrument rings — graduated, each on its own axis.
+   ============================================================ */
+class InstrumentRings {
+  constructor() { this.items = []; this.materials = []; this.geometries = []; }
+  ring(radius, segs, opts) {
+    const pos = new Float32Array((segs + 1) * 3), t = new Float32Array(segs + 1), ph = new Float32Array(segs + 1), sp = new Float32Array(segs + 1);
+    for (let i = 0; i <= segs; i++) { const a = i / segs * Math.PI * 2; pos[i * 3] = Math.cos(a) * radius; pos[i * 3 + 2] = Math.sin(a) * radius; t[i] = i / segs; ph[i] = opts.phase || 0; sp[i] = opts.speed || .05; }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("aT", new THREE.BufferAttribute(t, 1));
+    g.setAttribute("aPhase", new THREE.BufferAttribute(ph, 1)); g.setAttribute("aSpeed", new THREE.BufferAttribute(sp, 1));
+    const m = lineMaterial({ base: opts.base ?? .1, pulse: .7, len: opts.len ?? .25, wrap: true });
+    this.geometries.push(g); this.materials.push(m);
+    return new THREE.Line(g, m);
+  }
+  ticks(radius, count, len, major) {
+    const pos = [], t = [], ph = [], sp = [];
+    for (let i = 0; i < count; i++) {
+      const a = i / count * Math.PI * 2, l = i % major === 0 ? len * 2.4 : len, c = Math.cos(a), s = Math.sin(a);
+      pos.push(c * radius, 0, s * radius, c * (radius + l), 0, s * (radius + l));
+      t.push(i / count, i / count); ph.push(.5, .5); sp.push(.03, .03);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("aT", new THREE.Float32BufferAttribute(t, 1));
+    g.setAttribute("aPhase", new THREE.Float32BufferAttribute(ph, 1)); g.setAttribute("aSpeed", new THREE.Float32BufferAttribute(sp, 1));
+    const m = lineMaterial({ base: .16, pulse: .9, len: .12, wrap: true });
+    this.geometries.push(g); this.materials.push(m);
+    return new THREE.LineSegments(g, m);
+  }
+  /** Returns groups keyed to the shell they belong to. */
+  build() {
+    const defs = [
+      { layer: 4, r: 1.42, tilt: [1.25, 0, .3], spin: .05, ticks: [180, .03, 15] },
+      { layer: 4, r: 1.58, tilt: [.2, 0, -.9], spin: -.035, len: .08, base: .05 },
+      { layer: 3, r: 1.1, tilt: [1.57, 0, 0], spin: .09, ticks: [72, .025, 6] },
+      { layer: 2, r: .9, tilt: [.6, .4, 1.1], spin: -.12 },
+    ];
+    for (const d of defs) {
+      const g = new THREE.Group(); g.rotation.set(...d.tilt);
+      const spinner = new THREE.Group(); g.add(spinner);
+      spinner.add(this.ring(d.r, 256, { speed: Math.abs(d.spin) * 1.5, len: d.len, base: d.base }));
+      if (d.ticks) spinner.add(this.ticks(d.r + .03, ...d.ticks));
+      this.items.push({ layer: d.layer, group: g, spinner, spin: d.spin });
+    }
+    return this.items;
+  }
+  update(t, dt, speed, opacity) {
+    for (const it of this.items) it.spinner.rotation.y += it.spin * dt * speed;
+    for (const m of this.materials) { m.uniforms.uTime.value = t; m.uniforms.uOpacity.value = opacity; }
+  }
+  dispose() { this.geometries.forEach(g => g.dispose()); this.materials.forEach(m => m.dispose()); }
+}
+
+/* ============================================================
+   Energy arcs — signals travelling between surface nodes.
+   A few arcs are rewired every second: the core re-routes itself.
+   ============================================================ */
+class EnergyArcs {
+  constructor(count = 42, segs = 40) { this.count = count; this.segs = segs; this.boost = 0; }
+  build() {
+    const n = this.count * this.segs * 2;
+    this.pos = new Float32Array(n * 3); this.t = new Float32Array(n); this.ph = new Float32Array(n); this.sp = new Float32Array(n);
+    for (let i = 0; i < this.count; i++) this.wire(i);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(this.pos, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute("aT", new THREE.BufferAttribute(this.t, 1));
+    g.setAttribute("aPhase", new THREE.BufferAttribute(this.ph, 1).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute("aSpeed", new THREE.BufferAttribute(this.sp, 1).setUsage(THREE.DynamicDrawUsage));
+    this.geometry = g;
+    this.material = lineMaterial({ base: .0, pulse: .9, len: .35 });
+    this.mesh = new THREE.LineSegments(g, this.material);
+    this.mesh.frustumCulled = false;
+    return this.mesh;
+  }
+  rand() { const u = Math.random() * 2 - 1, p = Math.random() * Math.PI * 2, s = Math.sqrt(1 - u * u); return new THREE.Vector3(s * Math.cos(p), u, s * Math.sin(p)); }
+  wire(i) {
+    const a = this.rand(), b = this.rand(), segs = this.segs, base = i * segs * 2;
+    const ang = a.angleTo(b), sinA = Math.sin(ang) || 1e-4, lift = .15 + ang * .12;
+    const phase = Math.random(), speed = .18 + Math.random() * .3;
+    const pt = (u, out) => {
+      const wa = Math.sin((1 - u) * ang) / sinA, wb = Math.sin(u * ang) / sinA, r = 1.02 + Math.sin(Math.PI * u) * lift;
+      out.set(a.x * wa + b.x * wb, a.y * wa + b.y * wb, a.z * wa + b.z * wb).normalize().multiplyScalar(r); return out;
+    };
+    const p0 = new THREE.Vector3(), p1 = new THREE.Vector3();
+    for (let s = 0; s < segs; s++) {
+      const u0 = s / segs, u1 = (s + 1) / segs, k = base + s * 2;
+      pt(u0, p0); pt(u1, p1);
+      this.pos.set([p0.x, p0.y, p0.z, p1.x, p1.y, p1.z], k * 3);
+      this.t[k] = u0; this.t[k + 1] = u1; this.ph[k] = this.ph[k + 1] = phase; this.sp[k] = this.sp[k + 1] = speed;
+    }
+  }
+  rewire(k) {
+    for (let j = 0; j < k; j++) this.wire(Math.floor(Math.random() * this.count));
+    const g = this.geometry; g.attributes.position.needsUpdate = g.attributes.aPhase.needsUpdate = g.attributes.aSpeed.needsUpdate = true;
+  }
+  update(t, dt, opacity, expand) {
+    this.boost = damp(this.boost, 0, 2.2, dt);
+    this.material.uniforms.uTime.value = t;
+    this.material.uniforms.uPulse.value = .75 + this.boost * 1.6;
+    this.material.uniforms.uBase.value = .015 + this.boost * .08 + expand * .05;
+    this.material.uniforms.uOpacity.value = opacity;
+  }
+  dispose() { this.geometry.dispose(); this.material.dispose(); }
+}
+
+/* ============================================================
+   Inner geometry — the nucleus revealed when the core opens.
+   ============================================================ */
+class Nucleus {
+  build() {
+    this.group = new THREE.Group();
+    this.parts = [];
+    const mk = (geo, op, spin) => {
+      const e = new THREE.EdgesGeometry(geo); geo.dispose();
+      const m = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: op, blending: THREE.AdditiveBlending, depthWrite: false });
+      const l = new THREE.LineSegments(e, m); this.group.add(l); this.parts.push({ l, base: op, spin });
+    };
+    mk(new THREE.IcosahedronGeometry(.26, 0), .35, [.2, .3, 0]);
+    mk(new THREE.OctahedronGeometry(.17, 0), .45, [-.4, .1, .2]);
+    mk(new THREE.IcosahedronGeometry(.36, 1), .08, [.05, -.12, .03]);
+    return this.group;
+  }
+  update(dt, expand, speed) {
+    for (const p of this.parts) {
+      p.l.rotation.x += p.spin[0] * dt * speed; p.l.rotation.y += p.spin[1] * dt * speed; p.l.rotation.z += p.spin[2] * dt * speed;
+      p.l.material.opacity = p.base * (.5 + expand * 2.2);
+    }
+    const s = 1 + expand * .55; this.group.scale.setScalar(s);
+  }
+  dispose() { for (const p of this.parts) { p.l.geometry.dispose(); p.l.material.dispose(); } }
+}
+
+/* ============================================================
+   Data orbit — telemetry circling the core:
+   an activation histogram ring, an oscilloscope ring, satellites
+   with projected typographic labels.
+   ============================================================ */
+class DataOrbit {
+  constructor(labelsEl) { this.labelsEl = labelsEl; this.bars = 132; this.wave = 300; this.sats = []; }
+  build() {
+    this.group = new THREE.Group();
+    this.group.rotation.set(1.18, 0, -.22);
+    this.spin = new THREE.Group(); this.group.add(this.spin);
+
+    // histogram ring
+    this.barPos = new Float32Array(this.bars * 6);
+    const bg = new THREE.BufferGeometry(); bg.setAttribute("position", new THREE.BufferAttribute(this.barPos, 3).setUsage(THREE.DynamicDrawUsage));
+    this.barMat = new THREE.LineBasicMaterial({ color: COLORS.ink, transparent: true, opacity: .32, blending: THREE.AdditiveBlending, depthWrite: false });
+    this.barMesh = new THREE.LineSegments(bg, this.barMat); this.barMesh.frustumCulled = false; this.spin.add(this.barMesh);
+    this.levels = new Float32Array(this.bars);
+
+    // oscilloscope ring
+    this.wavePos = new Float32Array(this.wave * 3);
+    const wg = new THREE.BufferGeometry(); wg.setAttribute("position", new THREE.BufferAttribute(this.wavePos, 3).setUsage(THREE.DynamicDrawUsage));
+    this.waveMat = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: .4, blending: THREE.AdditiveBlending, depthWrite: false });
+    this.waveMesh = new THREE.LineLoop(wg, this.waveMat); this.waveMesh.frustumCulled = false; this.group.add(this.waveMesh);
+
+    // faint guide orbit + satellites
+    const og = new THREE.BufferGeometry().setFromPoints(Array.from({ length: 129 }, (_, i) => { const a = i / 128 * Math.PI * 2; return new THREE.Vector3(Math.cos(a) * 2.5, 0, Math.sin(a) * 2.5); }));
+    this.guideMat = new THREE.LineDashedMaterial({ color: COLORS.ink, transparent: true, opacity: .14, dashSize: .04, gapSize: .06, depthWrite: false });
+    this.guide = new THREE.Line(og, this.guideMat); this.guide.computeLineDistances(); this.group.add(this.guide);
+
+    const satGeo = new THREE.SphereGeometry(.018, 8, 8);
+    this.satGeo = satGeo; this.satMat = new THREE.MeshBasicMaterial({ color: COLORS.accent, transparent: true });
+    const defs = [
+      { name: "Entropy", fmt: v => v.toFixed(3), speed: .11, phase: .3 },
+      { name: "Coherence", fmt: v => (v * 100).toFixed(1) + "%", speed: .08, phase: 2.4 },
+      { name: "Throughput", fmt: v => (v * 9.6 + 38).toFixed(1) + " TF", speed: .06, phase: 4.3 },
+    ];
+    for (const d of defs) {
+      const m = new THREE.Mesh(satGeo, this.satMat); this.group.add(m);
+      const el = document.createElement("div"); el.className = "tag"; el.innerHTML = `${d.name}<b>—</b>`; this.labelsEl.appendChild(el);
+      this.sats.push({ ...d, mesh: m, el, val: el.querySelector("b"), a: d.phase });
+    }
+    return this.group;
+  }
+  update(t, dt, speed, opacity, activity, camera, size) {
+    this.spin.rotation.y += dt * .04 * speed;
+    // histogram: noisy activations that answer the pointer and expansion
+    for (let i = 0; i < this.bars; i++) {
+      const a = i / this.bars * Math.PI * 2;
+      const target = .02 + Math.pow(.5 + .5 * Math.sin(a * 5 + t * .7) * Math.sin(a * 3 - t * .4 + Math.sin(t * .2) * 2), 3) * (.16 + activity * .28) + (Math.random() < .01 ? .1 : 0);
+      this.levels[i] = damp(this.levels[i], target, 6, dt);
+      const r0 = 1.86, r1 = r0 + this.levels[i], c = Math.cos(a), s = Math.sin(a);
+      this.barPos.set([c * r0, 0, s * r0, c * r1, 0, s * r1], i * 6);
+    }
+    this.barMesh.geometry.attributes.position.needsUpdate = true;
+    for (let i = 0; i < this.wave; i++) {
+      const a = i / this.wave * Math.PI * 2;
+      const y = (Math.sin(a * 12 + t * 2.1) * .5 + Math.sin(a * 31 - t * 3.3) * .25 + Math.sin(a * 3 + t * .6) * .6) * (.025 + activity * .06);
+      this.wavePos[i * 3] = Math.cos(a) * 2.2; this.wavePos[i * 3 + 1] = y; this.wavePos[i * 3 + 2] = Math.sin(a) * 2.2;
+    }
+    this.waveMesh.geometry.attributes.position.needsUpdate = true;
+    this.barMat.opacity = .32 * opacity; this.waveMat.opacity = .4 * opacity; this.guideMat.opacity = .14 * opacity; this.satMat.opacity = opacity;
+
+    const v = new THREE.Vector3();
+    for (const s of this.sats) {
+      s.a += s.speed * dt * speed;
+      s.mesh.position.set(Math.cos(s.a) * 2.5, 0, Math.sin(s.a) * 2.5);
+      s.mesh.getWorldPosition(v); v.project(camera);
+      const visible = v.z < 1 && opacity > .05;
+      s.el.style.opacity = visible ? (opacity * (v.z < .985 ? 1 : .5)).toFixed(2) : 0;
+      s.el.style.transform = `translate3d(${((v.x * .5 + .5) * size.w).toFixed(1)}px, ${((-v.y * .5 + .5) * size.h - 6).toFixed(1)}px, 0)`;
+    }
+    if ((this.frame = (this.frame || 0) + 1) % 8 === 0) {
+      this.sats[0].val.textContent = this.sats[0].fmt(.38 + activity * .3 + Math.sin(t * .9) * .03);
+      this.sats[1].val.textContent = this.sats[1].fmt(.92 - activity * .21 + Math.sin(t * .5) * .01);
+      this.sats[2].val.textContent = this.sats[2].fmt(.5 + .5 * Math.sin(t * .7) + activity);
+    }
+  }
+  dispose() {
+    [this.barMesh, this.waveMesh, this.guide].forEach(m => { m.geometry.dispose(); m.material.dispose(); });
+    this.satGeo.dispose(); this.satMat.dispose(); this.sats.forEach(s => s.el.remove());
+  }
+}
+
+/* ============================================================
+   Section compositions — where the core sits, how its shells
+   separate, and where the camera looks, per scroll section.
+   ============================================================ */
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+function shots(narrow) {
+  const nx = narrow ? 0 : 1, ny = narrow ? .95 : 0; // on phones the core rides above the text
+  const offs = fn => [0, 1, 2, 3, 4].map(i => fn(i - 2, i));
+  return [
+    { core: V(narrow ? 0 : .95, narrow ? .55 : .15, 0), scale: narrow ? .8 : 1, cam: V(0, 0, 6.2), look: V(0, 0, 0), offs: offs(() => V(0, 0, 0)), orbit: 1, layer: 0 },
+    { core: V(1.35 * nx, ny, 0), scale: narrow ? .72 : 1, cam: V(0, .35, 6), look: V(0, 0, 0), offs: offs(k => V(0, k * .12, 0)), orbit: .75, layer: 1 },
+    { core: V(-1.35 * nx, ny, 0), scale: narrow ? .62 : .9, cam: V(.2, .2, 6.2), look: V(0, 0, 0), offs: offs(k => V(k * (narrow ? .38 : .6), k * -.08, 0)), orbit: .3, layer: 2 },
+    { core: V(1.45 * nx, ny, 0), scale: narrow ? .6 : .85, cam: V(.9, 1.4, 6.3), look: V(.2, 0, 0), offs: offs(k => V(0, k * .72, 0)), orbit: .2, layer: 3 },
+    { core: V(-1.25 * nx, ny, 0), scale: narrow ? .66 : .95, cam: V(-2.1, .7, 5.7), look: V(-.3, 0, 0), offs: offs(k => V(k * .22, 0, k * -.95)), orbit: .6, layer: 4 },
+    { core: V(1.35 * nx, ny, 0), scale: narrow ? .7 : .78, cam: V(0, 0, 6.8), look: V(0, 0, 0), offs: offs(() => V(0, 0, 0)), orbit: 1, layer: 5 },
+  ];
+}
+
+/* ============================================================
+   The core — assembles all components into shells.
+   ============================================================ */
+class AICore {
+  constructor(stage, labelsEl, count) {
+    this.stage = stage; this.root = new THREE.Group(); stage.scene.add(this.root);
+    this.rotation = new THREE.Quaternion(); this.spinY = 0;
+    this.particles = new ParticleShells(count);
+    this.rings = new InstrumentRings(); this.arcs = new EnergyArcs(env.coarse ? 26 : 42);
+    this.nucleus = new Nucleus(); this.orbit = new DataOrbit(labelsEl);
+    this.expand = new Spring(0, 60, 7);     // underdamped: dramatic overshoot
+    this.assemble = 0; this.morph = 0; this.morphTarget = 0; this.nextMorph = 6; this.nextRewire = 1;
+    this.rotX = new Spring(0, 30, 11); this.rotY = new Spring(0, 30, 11);
+    this.offsets = [0, 1, 2, 3, 4].map(() => new THREE.Vector3());
+    this.coreScale = 1; this.orbitOpacity = 1; this.attract = 0;
+  }
+  async build(progress) {
+    const pts = await this.particles.build(p => progress(p * .8));
+    this.pRot = new THREE.Group(); this.pRot.add(pts); this.root.add(this.pRot);
+    // one "slot" per shell, positioned by the section composition
+    this.slots = [0, 1, 2, 3, 4].map(() => { const s = new THREE.Group(), r = new THREE.Group(); s.add(r); this.root.add(s); return { s, r }; });
+    for (const it of this.rings.build()) this.slots[it.layer].r.add(it.group);
+    this.slots[2].r.add(this.arcs.build());
+    this.slots[0].r.add(this.nucleus.build());
+    this.orbitRoot = new THREE.Group(); this.orbitRoot.add(this.orbit.build()); this.root.add(this.orbitRoot);
+    progress(1);
+  }
+  toggle() {
+    const open = this.expand.target < .5;
+    this.expand.target = open ? 1 : 0;
+    this.morphTarget = 1 - this.morphTarget; // opening forces a reorganisation
+    this.arcs.boost = 1; this.arcs.rewire(12);
+    this.autoClose = open ? 9 : 0;
+    return open;
+  }
+  pulse() { this.arcs.boost = Math.min(1, this.arcs.boost + .6); }
+  update(t, dt, s) {
+    const speed = s.reduced ? .3 : 1;
+    // assembly intro
+    this.assemble = s.reduced ? 1 : Math.min(1, this.assemble + dt / 2.6);
+    const asm = easeInOut(this.assemble);
+    // self-reorganisation: alternate arrangements, rewire arcs
+    if (t > this.nextMorph) { this.morphTarget = 1 - this.morphTarget; this.nextMorph = t + (s.reduced ? 16 : 7 + Math.random() * 4); }
+    this.morph = damp(this.morph, this.morphTarget, s.reduced ? .6 : 1.1, dt);
+    if (!s.reduced && t > this.nextRewire) { this.arcs.rewire(2); this.nextRewire = t + .7 + Math.random() * .8; }
+    if (this.autoClose > 0 && (this.autoClose -= dt) <= 0 && this.expand.target > .5) { this.expand.target = 0; s.onAutoClose?.(); }
+    const ex = Math.max(-.08, this.expand.step(dt));
+
+    // rotate toward the cursor, on top of a slow drift
+    this.spinY += dt * .06 * speed * (1 + ex * 1.5);
+    this.rotX.target = -s.pointer.y * .45; this.rotY.target = s.pointer.x * .7;
+    this.rotX.step(dt); this.rotY.step(dt);
+    const e = new THREE.Euler(this.rotX.value + Math.sin(t * .13) * .08, this.spinY + this.rotY.value, Math.sin(t * .09) * .05, "YXZ");
+    this.rotation.setFromEuler(e);
+
+    // composition blend (already interpolated by the caller)
+    const shot = s.shot;
+    this.root.position.lerp(shot.core, 1 - Math.exp(-2.6 * dt));
+    this.coreScale = damp(this.coreScale, shot.scale, 2.6, dt);
+    this.orbitOpacity = damp(this.orbitOpacity, shot.orbit * asm * (1 - ex * .5), 3, dt);
+    for (let i = 0; i < 5; i++) this.offsets[i].lerp(shot.offs[i], 1 - Math.exp(-2.4 * dt));
+
+    const sc = this.coreScale;
+    this.pRot.quaternion.copy(this.rotation); this.pRot.scale.setScalar(sc);
+    this.slots.forEach((sl, i) => { sl.s.position.copy(this.offsets[i]); sl.r.quaternion.copy(this.rotation); sl.r.scale.setScalar(sc * (1 + ex * (.25 + i * .34))); });
+    this.orbitRoot.scale.setScalar(sc * (1 + ex * .35));
+
+    const u = this.particles.uniforms;
+    u.uTime.value = t; u.uMorph.value = this.morph; u.uExpand.value = ex; u.uAssemble.value = asm;
+    this.attract = damp(this.attract, s.attract, 4, dt); u.uAttract.value = this.attract;
+    u.uPointer.value.copy(s.pointerWorld);
+    for (let i = 0; i < 5; i++) u.uOffset.value[i].copy(this.offsets[i]);
+
+    this.rings.update(t, dt, speed * (1 + ex * 2), asm * (1 - ex * .35));
+    this.arcs.update(t * (s.reduced ? .4 : 1), dt, asm, ex);
+    this.nucleus.update(dt, Math.max(0, ex), speed);
+    const activity = clamp(this.attract * .5 + ex + this.arcs.boost * .4, 0, 1.4);
+    this.orbit.update(t, dt, speed, this.orbitOpacity, activity, s.camera, s.size);
+    return ex;
+  }
+  setPixel(dpr) { if (this.particles.uniforms) { this.particles.uniforms.uPixel.value = dpr * Math.min(1.2, window.innerHeight / 900 + .2); } }
+  dispose() {
+    this.particles.dispose(); this.rings.dispose(); this.arcs.dispose(); this.nucleus.dispose(); this.orbit.dispose();
+    this.stage.scene.remove(this.root);
+  }
+}
+
+/* ============================================================
+   Pointer + cursor interaction
+   ============================================================ */
+class Interaction {
+  constructor(cursorEl, cursorLbl) {
+    this.ndc = new THREE.Vector2(); this.smooth = new THREE.Vector2(); this.client = { x: -100, y: -100 };
+    this.cursorEl = cursorEl; this.cursorLbl = cursorLbl; this.ring = { x: -100, y: -100 };
+    this.active = false; this.lastMove = 0; this.overCore = false; this.overLink = false;
+    this.ray = new THREE.Raycaster(); this.plane = new THREE.Plane(); this.world = new THREE.Vector3(99, 99, 99);
+    this.useCursor = !env.coarse;
+    if (this.useCursor) document.body.classList.add("has-cursor");
+    this.onMove = e => {
+      this.client.x = e.clientX; this.client.y = e.clientY;
+      this.ndc.set(e.clientX / window.innerWidth * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+      this.active = true; this.lastMove = performance.now(); this.touch = e.pointerType === "touch";
+      const t = e.target.closest?.("a,button,input,textarea,label,[data-pulse]");
+      this.overLink = !!t;
+    };
+    this.onLeave = () => { this.active = false; };
+    this.onDown = () => this.cursorEl.classList.add("down");
+    this.onUp = () => this.cursorEl.classList.remove("down");
+    window.addEventListener("pointermove", this.onMove, { passive: true });
+    window.addEventListener("pointerdown", this.onMove, { passive: true });
+    window.addEventListener("pointerdown", this.onDown); window.addEventListener("pointerup", this.onUp);
+    document.addEventListener("pointerleave", this.onLeave);
+  }
+  /** Pointer projected onto a plane through the core, facing the camera. */
+  update(dt, camera, coreWorld, coreRadiusPx, reduced) {
+    this.smooth.x = damp(this.smooth.x, this.ndc.x, 5, dt); this.smooth.y = damp(this.smooth.y, this.ndc.y, 5, dt);
+    const n = new THREE.Vector3(); camera.getWorldDirection(n);
+    this.plane.setFromNormalAndCoplanarPoint(n.negate(), coreWorld);
+    this.ray.setFromCamera(this.ndc, camera);
+    if (!this.ray.ray.intersectPlane(this.plane, this.world)) this.world.set(99, 99, 99);
+    // core hit-test in screen space
+    const c = coreWorld.clone().project(camera);
+    const cx = (c.x * .5 + .5) * window.innerWidth, cy = (-c.y * .5 + .5) * window.innerHeight;
+    const d = Math.hypot(this.client.x - cx, this.client.y - cy);
+    this.overCore = this.active && !this.overLink && d < coreRadiusPx;
+    // idle pointers lose their pull; touch pull fades fast
+    const idle = (performance.now() - this.lastMove) / 1000;
+    this.attract = !this.active ? 0 : this.touch ? (idle < .6 ? 1 : 0) : (idle < 1.5 ? 1 : .45);
+    if (this.useCursor) {
+      const k = reduced ? 30 : 16;
+      this.ring.x = damp(this.ring.x, this.client.x, k, dt); this.ring.y = damp(this.ring.y, this.client.y, k, dt);
+      this.cursorEl.style.transform = `translate3d(${this.ring.x}px, ${this.ring.y}px, 0)`;
+      this.cursorEl.classList.toggle("core", this.overCore);
+      this.cursorEl.classList.toggle("link", this.overLink);
+    }
+  }
+  dispose() {
+    window.removeEventListener("pointermove", this.onMove); window.removeEventListener("pointerdown", this.onMove);
+    window.removeEventListener("pointerdown", this.onDown); window.removeEventListener("pointerup", this.onUp);
+    document.removeEventListener("pointerleave", this.onLeave);
+  }
+}
+
+/* ============================================================
+   Scroll → continuous section coordinate, with inertia.
+   Shells hold still while you read, and separate at boundaries.
+   ============================================================ */
+class ScrollDirector {
+  constructor(sections) { this.sections = sections; this.raw = 0; this.smooth = 0; this.measure(); window.addEventListener("resize", () => this.measure()); }
+  measure() { this.tops = this.sections.map(s => s.offsetTop); this.max = document.documentElement.scrollHeight - window.innerHeight; }
+  read() {
+    const y = Math.min(window.scrollY, this.max), tops = this.tops, last = tops.length - 1;
+    let k = 0; while (k < last && y >= Math.min(tops[k + 1], this.max)) k++;
+    if (k >= last) return last;
+    const a = tops[k], b = Math.min(tops[k + 1], this.max), f = (y - a) / Math.max(1, b - a);
+    return k + smooth(.35, 1, f);
+  }
+  update(dt, reduced) { this.raw = this.read(); this.smooth = damp(this.smooth, this.raw, reduced ? 12 : 3.2, dt); return this.smooth; }
+}
+
+function blendShot(list, x) {
+  const i = clamp(Math.floor(x), 0, list.length - 1), j = Math.min(list.length - 1, i + 1), f = easeInOut(clamp(x - i, 0, 1));
+  const a = list[i], b = list[j];
+  return {
+    core: a.core.clone().lerp(b.core, f), scale: lerp(a.scale, b.scale, f), cam: a.cam.clone().lerp(b.cam, f), look: a.look.clone().lerp(b.look, f),
+    offs: a.offs.map((o, k) => o.clone().lerp(b.offs[k], f)), orbit: lerp(a.orbit, b.orbit, f), layer: f < .5 ? a.layer : b.layer,
+  };
+}
+
+/* ============================================================
+   Loader — real steps, real progress.
+   ============================================================ */
+class Loader {
+  constructor() { this.el = document.getElementById("loader"); this.num = document.getElementById("ldNum"); this.bar = document.getElementById("ldBar"); this.step = document.getElementById("ldStep"); this.log = document.getElementById("ldLog"); this.shown = 0; this.target = 0; this.lines = []; }
+  set(p, label) {
+    this.target = Math.max(this.target, p);
+    if (label && label !== this.label) { this.label = label; this.step.textContent = label; this.lines.push("› " + label.toLowerCase()); this.log.textContent = this.lines.slice(-3).join("\n"); this.log.style.whiteSpace = "pre"; }
+  }
+  tick() { this.shown += (this.target - this.shown) * .2; const v = Math.round(this.shown * 100); this.num.textContent = String(v).padStart(3, "0"); this.bar.style.transform = `scaleX(${this.shown})`; }
+  async finish() { this.set(1, "Core online"); for (let i = 0; i < 20 && this.shown < .995; i++) { this.tick(); await nextFrame(); } this.shown = 1; this.tick(); await new Promise(r => setTimeout(r, 250)); this.el.classList.add("done"); }
+}
+
+/* ============================================================
+   Small section-level details
+   ============================================================ */
+function sparklines(reduced) {
+  const cvs = [...document.querySelectorAll("canvas[data-spark]")];
+  const data = cvs.map(() => Array.from({ length: 48 }, () => Math.random()));
+  let last = 0;
+  const draw = now => {
+    if (now - last > (reduced ? 1200 : 180)) {
+      last = now;
+      cvs.forEach((c, k) => {
+        const live = k < 2, d = data[k];
+        if (live) { d.shift(); d.push(clamp(d[d.length - 1] + (Math.random() - .5) * .35, 0, 1)); }
+        const w = c.clientWidth, h = c.clientHeight, dpr = Math.min(2, devicePixelRatio || 1);
+        if (!w) return;
+        if (c.width !== w * dpr) { c.width = w * dpr; c.height = h * dpr; }
+        const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+        g.strokeStyle = "rgba(216,218,221,.08)"; g.beginPath(); g.moveTo(0, h - .5); g.lineTo(w, h - .5); g.stroke();
+        g.strokeStyle = live ? "#A9C7FF" : "rgba(216,218,221,.35)"; g.lineWidth = 1; g.beginPath();
+        d.forEach((v, i) => { const x = i / (d.length - 1) * w, y = h - 2 - v * (h - 4); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
+        const ly = h - 2 - d[d.length - 1] * (h - 4); g.fillStyle = g.strokeStyle; g.beginPath(); g.arc(w - 1.5, ly, 1.5, 0, 7); g.fill();
+      });
+    }
+    sparklines.raf = requestAnimationFrame(draw);
+  };
+  sparklines.raf = requestAnimationFrame(draw);
+}
+
+function reveals() {
+  const els = document.querySelectorAll(".reveal");
+  if (!("IntersectionObserver" in window) || env.reduced) return;
+  const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("pending", !e.isIntersecting && e.boundingClientRect.top > 0)), { rootMargin: "0px 0px -12% 0px" });
+  els.forEach(el => io.observe(el));
+}
+
+function contact(sfx) {
+  const status = document.getElementById("status");
+  document.getElementById("copyBtn").addEventListener("click", async e => {
+    const addr = document.getElementById("addr").textContent;
+    try { await navigator.clipboard.writeText(addr); e.currentTarget.textContent = "Copied"; }
+    catch { const r = document.createRange(); r.selectNodeContents(document.getElementById("addr")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); e.currentTarget.textContent = "Selected — press Ctrl C"; }
+    sfx.emit("pulse");
+  });
+  document.getElementById("form").addEventListener("submit", e => {
+    e.preventDefault();
+    const email = document.getElementById("f-email").value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)) { status.textContent = "Add an email address so we can reply."; document.getElementById("f-email").focus(); return; }
+    status.textContent = "Message staged. This demo doesn't send mail — write to the address above.";
+    sfx.emit("section");
+  });
+}
+
+/* ============================================================
+   App — wires everything together.
+   ============================================================ */
+class App {
+  constructor() {
+    this.sfx = new SoundBus();
+    this.loader = new Loader();
+    this.sections = [...document.querySelectorAll("main section")];
+    this.navLinks = [...document.querySelectorAll("#index a")];
+    this.r = { state: document.getElementById("rState"), nodes: document.getElementById("rNodes"), layer: document.getElementById("rLayer"), x: document.getElementById("rX"), y: document.getElementById("rY"), ms: document.getElementById("rMs"), t: document.getElementById("rT") };
+    this.size = { w: innerWidth, h: innerHeight };
+    this.t = 0; this.ms = 16.7; this.section = -1; this.running = true;
+  }
+  async start() {
+    const L = this.loader; let raf; const spin = () => { L.tick(); raf = requestAnimationFrame(spin); }; spin();
+    L.set(.04, "Probing WebGL");
+    try { this.stage = new Stage(document.getElementById("stage")); }
+    catch (e) { cancelAnimationFrame(raf); document.body.classList.add("nogl"); this.r.state.textContent = "Static"; sparklines(env.reduced); reveals(); contact(this.sfx); this.bindUI(); await L.finish(); return; }
+
+    L.set(.08, "Loading typefaces");
+    await Promise.race([document.fonts?.ready, new Promise(r => setTimeout(r, 1800))]);
+    const count = env.coarse || env.narrow() ? 6000 : env.reduced ? 9000 : 15000;
+    this.rig = new CameraRig(this.stage);
+    this.core = new AICore(this.stage, document.getElementById("labels"), count);
+    L.set(.12, "Seeding particle shells");
+    await this.core.build(p => L.set(.12 + p * .66, p < .8 ? "Seeding particle shells" : "Wiring rings and arcs"));
+    this.r.nodes.textContent = count.toLocaleString("en-US");
+    this.ix = new Interaction(document.getElementById("cursor"), document.getElementById("cursorLbl"));
+    this.director = new ScrollDirector(this.sections);
+    this.stage.onSize((w, h, dpr) => { this.size.w = w; this.size.h = h; this.core.setPixel(dpr); this.shots = shots(env.narrow()); });
+    this.stage.onResize();
+    L.set(.84, "Compiling shaders");
+    await nextFrame();
+    this.stage.renderer.compile(this.stage.scene, this.rig.camera);
+    L.set(.94, "Warming first frame");
+    this.stage.renderer.render(this.stage.scene, this.rig.camera);
+    await nextFrame();
+    cancelAnimationFrame(raf);
+    this.bindUI(); sparklines(env.reduced); reveals(); contact(this.sfx);
+    await L.finish();
+    this.r.state.textContent = env.reduced ? "Idle" : "Assembling";
+    this.sfx.emit("ready");
+    this.last = performance.now();
+    this.loop = this.loop.bind(this); requestAnimationFrame(this.loop);
+    document.addEventListener("visibilitychange", () => { this.running = !document.hidden; if (this.running) { this.last = performance.now(); requestAnimationFrame(this.loop); } });
+    window.addEventListener("pagehide", () => this.dispose(), { once: true });
+  }
+  bindUI() {
+    const btn = document.getElementById("soundBtn"), lbl = document.getElementById("soundLbl");
+    btn.addEventListener("click", () => { const on = !this.sfx.enabled; this.sfx.enable(on); document.body.classList.toggle("sound-on", this.sfx.enabled); btn.setAttribute("aria-pressed", this.sfx.enabled); lbl.textContent = this.sfx.enabled ? "Sound on" : "Sound off"; this.sfx.emit("pulse"); });
+    document.getElementById("openBtn").addEventListener("click", e => { e.stopPropagation(); this.toggleCore(); });
+    window.addEventListener("click", e => { if (this.ix?.overCore && !e.target.closest("a,button,input,textarea,label,form")) this.toggleCore(); });
+    document.querySelectorAll("[data-pulse]").forEach(el => el.addEventListener("pointerenter", () => { this.core?.pulse(); this.sfx.emit("hover"); }));
+    this.navLinks.forEach(a => a.addEventListener("click", e => {
+      e.preventDefault(); const target = document.querySelector(a.getAttribute("href"));
+      target.scrollIntoView({ behavior: env.reduced ? "auto" : "smooth" });
+    }));
+  }
+  toggleCore() {
+    if (!this.core) return;
+    const open = this.core.toggle();
+    this.sfx.emit(open ? "expand" : "collapse");
+    document.getElementById("openLbl").textContent = open ? "Close the core" : "Open the core";
+    document.getElementById("cursorLbl").textContent = open ? "Click · close" : "Click · open";
+  }
+  loop(now) {
+    if (!this.running) return;
+    const dt = Math.min(.05, (now - this.last) / 1000); this.last = now;
+    this.ms = lerp(this.ms, dt * 1000, .05);
+    const reduced = env.reduced;
+    this.t += dt * (reduced ? .5 : 1);
+
+    const x = this.director.update(dt, reduced);
+    const shot = blendShot(this.shots, x);
+    const ex = this.core.expand.value;
+    this.rig.goalPos.copy(shot.cam).multiplyScalar(1 + Math.max(0, ex) * .12);
+    this.rig.goalLook.copy(shot.look).add(this.core.root.position.clone().multiplyScalar(.15));
+    this.rig.update(dt, this.ix.smooth, reduced);
+
+    const radiusPx = 1.35 * this.core.coreScale * this.size.h / (2 * Math.tan(THREE.MathUtils.degToRad(this.rig.camera.fov / 2)) * this.rig.camera.position.distanceTo(this.core.root.position));
+    this.ix.update(dt, this.rig.camera, this.core.root.position, radiusPx, reduced);
+
+    this.core.update(this.t, dt, {
+      reduced, shot, pointer: this.ix.smooth, pointerWorld: this.ix.world, attract: this.ix.attract,
+      camera: this.rig.camera, size: this.size, onAutoClose: () => this.toggleLabels(false),
+    });
+    this.stage.renderer.render(this.stage.scene, this.rig.camera);
+    this.hud(x, shot, ex);
+    requestAnimationFrame(this.loop);
+  }
+  toggleLabels() { document.getElementById("openLbl").textContent = "Open the core"; document.getElementById("cursorLbl").textContent = "Click · open"; this.sfx.emit("collapse"); }
+  hud(x, shot, ex) {
+    const sec = Math.round(x);
+    if (sec !== this.section) {
+      this.section = sec; this.navLinks.forEach((a, i) => a.classList.toggle("on", i === sec));
+      if (this.core.assemble >= 1) this.sfx.emit("section", { index: sec });
+    }
+    if ((this.hudFrame = (this.hudFrame || 0) + 1) % 4) return;
+    const f = v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(3);
+    this.r.x.textContent = f(this.ix.smooth.x); this.r.y.textContent = f(this.ix.smooth.y);
+    this.r.ms.textContent = this.ms.toFixed(1); this.r.t.textContent = this.t.toFixed(1);
+    this.r.layer.textContent = "L" + shot.layer;
+    const st = this.core.assemble < 1 ? "Assembling" : ex > .5 ? "Expanded" : this.ix.overCore ? "Attending" : Math.abs(this.core.morph - this.core.morphTarget) > .08 ? "Reorganising" : "Idle";
+    if (st !== this.r.state.textContent) this.r.state.textContent = st;
+  }
+  dispose() {
+    this.running = false; cancelAnimationFrame(sparklines.raf);
+    this.core?.dispose(); this.ix?.dispose(); this.stage?.dispose();
+  }
+}
+
+new App().start();
+})();
+</script>

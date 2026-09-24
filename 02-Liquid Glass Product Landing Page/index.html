@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en" class="is-loading">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Aether One — Liquid Glass</title>
+  <meta name="description" content="Aether One. A liquid glass interface that listens to your hand.">
+  <meta name="theme-color" content="#f3f2ee">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- Loading sequence -->
+  <div class="loader" role="status" aria-live="polite">
+    <div class="loader__top">
+      <span class="logo">Aether</span>
+      <span class="loader__note">Calibrating light</span>
+    </div>
+    <div class="loader__bottom">
+      <div class="loader__count"><span data-count>0</span><sup>%</sup></div>
+      <div class="loader__bar"><i data-bar></i></div>
+      <div class="loader__meta">
+        <span>Material Lab — N°01</span>
+        <span>Refraction · Dispersion · Surface tension</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <canvas class="webgl" aria-hidden="true"></canvas>
+  <div class="fallback" aria-hidden="true"><div class="fallback__blob"></div></div>
+
+  <header class="nav rise" style="--i:0">
+    <a class="logo" href="#top" aria-label="Aether home">Aether</a>
+    <span class="nav__meta">Material Lab — N°01</span>
+    <a class="btn btn--ghost" href="#reserve" data-magnetic>Reserve</a>
+  </header>
+
+  <main id="top">
+    <!-- 00 — Hero -->
+    <section class="panel panel--hero" data-panel aria-label="Introducing Aether One">
+      <div class="hero__foot">
+        <div class="hero__lede">
+          <p class="eyebrow rise" style="--i:1">Introducing Aether One</p>
+          <p class="lede" data-split>A liquid interface that <em>listens</em> to your hand.</p>
+        </div>
+        <p class="hero__cue rise" style="--i:4">
+          <span class="cue-fine">Press the glass</span>
+          <span class="cue-coarse">Tap the glass</span>
+          <span class="cue-line" aria-hidden="true"></span>
+          Scroll to shape it
+        </p>
+      </div>
+    </section>
+
+    <!-- 01 — Touch -->
+    <section class="panel panel--left" data-panel aria-labelledby="t1">
+      <div class="panel__inner">
+        <p class="eyebrow rise" style="--i:0">01 — Responsive matter</p>
+        <h2 id="t1" data-split>Shaped <br>by <em>touch.</em></h2>
+        <p class="body rise" style="--i:3">Surface tension that reacts to proximity, pressure and pace. Move closer — it leans in. Let go — it settles with the patience of water.</p>
+        <dl class="specs rise" style="--i:4">
+          <div><dt>Response</dt><dd>0.4 ms</dd></div>
+          <div><dt>Surface</dt><dd>120 Hz</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- 02 — Prism -->
+    <section class="panel panel--right" data-panel aria-labelledby="t2">
+      <div class="panel__inner">
+        <p class="eyebrow rise" style="--i:0">02 — Optical core</p>
+        <h2 id="t2" data-split>Light, bent <br>into <em>colour.</em></h2>
+        <p class="body rise" style="--i:3">A dispersive glass volume splits every reflection into its spectrum — iridescent at the edge, perfectly clear at the heart.</p>
+        <dl class="specs rise" style="--i:4">
+          <div><dt>Index</dt><dd>1.42 n</dd></div>
+          <div><dt>Abbe</dt><dd>34 v</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- 03 — Reveal -->
+    <section class="panel panel--final" data-panel aria-labelledby="t3" id="reserve">
+      <div class="panel__inner">
+        <p class="eyebrow rise" style="--i:0">03 — Availability</p>
+        <h2 id="t3" data-split>Aether <em>One.</em></h2>
+        <p class="body rise" style="--i:2">Ships this winter in a single finish: clear.</p>
+        <div class="cta rise" style="--i:3">
+          <a class="btn" href="#reserve" data-magnetic>Reserve yours</a>
+          <a class="btn btn--ghost" href="#top" data-magnetic>Watch the film</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="progress rise" style="--i:5" aria-label="Sections">
+    <span class="progress__index"><span data-index>01</span> / 04</span>
+    <div class="progress__track"><i class="progress__fill"></i></div>
+    <button class="progress__tick" type="button" aria-label="Introduction"></button>
+    <button class="progress__tick" type="button" aria-label="Responsive matter"></button>
+    <button class="progress__tick" type="button" aria-label="Optical core"></button>
+    <button class="progress__tick" type="button" aria-label="Availability"></button>
+  </nav>
+
+  <div class="cursor is-hidden" aria-hidden="true">
+    <div class="cursor__ring"><span class="cursor__pulse"></span><span class="cursor__label">Press</span></div>
+    <div class="cursor__dot"></div>
+  </div>
+
+  <div class="scroll-track" style="--count:4"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

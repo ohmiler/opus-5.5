@@ -1,0 +1,11 @@
+{
+  "name": "nocturne-infinite-gallery",
+  "version": "1.0.0",
+  "description": "An endless, inertial 3D gallery built with Three.js.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}

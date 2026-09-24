@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opus 5.5 Showcase</title>
+<style>
+  :root { --bg:#0b0b0f; --fg:#ececf1; --muted:#9a9aa8; --card:#15151c; --line:#26262f; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui,sans-serif; }
+  main { max-width:1200px; margin:0 auto; padding:48px 16px; }
+  h1 { font-size:clamp(28px,5vw,44px); margin:0 0 8px; }
+  p.lead { color:var(--muted); margin:0 0 32px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
+  a.card { display:block; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; color:inherit; text-decoration:none; transition:transform .2s, border-color .2s; }
+  a.card:hover { transform:translateY(-3px); border-color:#555; }
+  a.card img { width:100%; aspect-ratio:16/10; object-fit:cover; display:block; background:#000; }
+  a.card span { display:block; padding:12px 16px; font-weight:500; }
+  a.card small { color:var(--muted); margin-right:8px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Opus 5.5 Showcase</h1>
+<p class="lead">10 interactive web experiences.</p>
+<div class="grid">
+  <a class="card" href="./galaxy-portfolio/"><img src="./screenshots/galaxy-portfolio.png" alt="Interactive Galaxy Portfolio" loading="lazy"><span><small>01</small>Interactive Galaxy Portfolio</span></a>
+  <a class="card" href="./liquid-glass-landing/"><img src="./screenshots/liquid-glass-landing.png" alt="Liquid Glass Product Landing Page" loading="lazy"><span><small>02</small>Liquid Glass Product Landing Page</span></a>
+  <a class="card" href="./cyberpunk-city/"><img src="./screenshots/cyberpunk-city.png" alt="Cyberpunk 3D City Navigation" loading="lazy"><span><small>03</small>Cyberpunk 3D City Navigation</span></a>
+  <a class="card" href="./infinite-gallery/"><img src="./screenshots/infinite-gallery.png" alt="Infinite 3D Gallery" loading="lazy"><span><small>04</small>Infinite 3D Gallery</span></a>
+  <a class="card" href="./cursor-black-hole/"><img src="./screenshots/cursor-black-hole.png" alt="Cursor Black Hole" loading="lazy"><span><small>05</small>Cursor Black Hole</span></a>
+  <a class="card" href="./underwater-journey/"><img src="./screenshots/underwater-journey.png" alt="Scroll-Driven Underwater Journey" loading="lazy"><span><small>06</small>Scroll-Driven Underwater Journey</span></a>
+  <a class="card" href="./digital-organism/"><img src="./screenshots/digital-organism.png" alt="Living Digital Organism" loading="lazy"><span><small>07</small>Living Digital Organism</span></a>
+  <a class="card" href="./impossible-architecture/"><img src="./screenshots/impossible-architecture.png" alt="Impossible Architecture Portfolio" loading="lazy"><span><small>08</small>Impossible Architecture Portfolio</span></a>
+  <a class="card" href="./y2k-retro-os/"><img src="./screenshots/y2k-retro-os.png" alt="Y2K Retro OS 3D Desktop" loading="lazy"><span><small>09</small>Y2K Retro OS 3D Desktop</span></a>
+  <a class="card" href="./ai-core/"><img src="./screenshots/ai-core.png" alt="Interactive 3D Personal AI Core" loading="lazy"><span><small>10</small>Interactive 3D Personal AI Core</span></a>
+</div>
+</main>
+</body>
+</html>
