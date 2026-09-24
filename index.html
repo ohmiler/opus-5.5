@@ -36,22 +36,30 @@
 
   main { max-width:1200px; margin:0 auto; padding:0 16px 32px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr)); gap:24px; }
-  a.card { position:relative; display:block; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; color:inherit; text-decoration:none;
+  .card { position:relative; display:block; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; color:inherit; text-decoration:none;
            transition:transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s, box-shadow .35s, opacity .8s ease; }
-  a.card .img { overflow:hidden; aspect-ratio:16/10; background:#000; }
-  a.card img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.2,.8,.2,1), filter .5s; filter:saturate(.9); }
-  a.card:hover { transform:translateY(-6px); border-color:rgba(255,210,161,.45); box-shadow:0 20px 50px -20px rgba(255,210,161,.35); }
-  a.card:hover img { transform:scale(1.06); filter:saturate(1.1); }
-  a.card .meta { display:flex; align-items:baseline; gap:12px; padding:16px 18px; }
-  a.card small { font:12px "JetBrains Mono",monospace; color:var(--accent); }
-  a.card .t { font-weight:500; flex:1; }
-  a.card .arrow { color:var(--muted); transition:transform .35s, color .35s; }
-  a.card:hover .arrow { transform:translateX(4px); color:var(--accent); }
+  .card .img { overflow:hidden; aspect-ratio:16/10; background:#000; }
+  .card img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s cubic-bezier(.2,.8,.2,1), filter .5s; filter:saturate(.9); }
+  .card:hover { transform:translateY(-6px); border-color:rgba(255,210,161,.45); box-shadow:0 20px 50px -20px rgba(255,210,161,.35); }
+  .card:hover img { transform:scale(1.06); filter:saturate(1.1); }
+  .card .meta { display:flex; align-items:center; gap:12px; padding:14px 14px 14px 18px; }
+  .card small { font:12px "JetBrains Mono",monospace; color:var(--accent); }
+  .card .t { font-weight:500; flex:1; color:inherit; text-decoration:none; }
+  .card .t::after { content:""; position:absolute; inset:0; }  /* whole card is the link */
+  .card .t:focus-visible { outline:none; }
+  .card:has(.t:focus-visible) { outline:2px solid var(--accent); outline-offset:3px; }
+  .copy { position:relative; z-index:1; flex:none; display:inline-flex; align-items:center; gap:6px; padding:7px 11px; border-radius:999px;
+          background:transparent; border:1px solid var(--line); color:var(--muted); font:12px "JetBrains Mono",monospace; cursor:pointer;
+          transition:color .2s, border-color .2s, background .2s; }
+  .copy svg { width:14px; height:14px; }
+  .copy:hover, .copy:focus-visible { color:var(--fg); border-color:#555; background:rgba(255,255,255,.04); outline:none; }
+  .copy.done { color:var(--accent); border-color:rgba(255,210,161,.5); }
+  .copy.fail { color:#ff9a9a; border-color:rgba(255,154,154,.5); }
 
   .reveal { opacity:0; transform:translateY(28px); }
   .reveal.in { opacity:1; transform:none; }
   .reveal.in:hover { transform:translateY(-6px); }
-  @media (prefers-reduced-motion: reduce) { .reveal { opacity:1; transform:none; } a.card, a.card img { transition:none; } }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity:1; transform:none; } .card, .card img { transition:none; } }
 
   footer { border-top:1px solid var(--line); margin-top:72px; padding:48px 16px 56px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; }
   footer img { width:88px; height:88px; border-radius:50%; object-fit:cover; border:2px solid var(--line); }
@@ -75,16 +83,16 @@
 </header>
 <main>
 <div class="grid">
-  <a class="card reveal" href="./galaxy-portfolio/"><div class="img"><img src="./thumbs/galaxy-portfolio.webp" alt="Interactive Galaxy Portfolio" width="960" height="600" loading="lazy"></div><div class="meta"><small>01</small><span class="t">Interactive Galaxy Portfolio</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./liquid-glass-landing/"><div class="img"><img src="./thumbs/liquid-glass-landing.webp" alt="Liquid Glass Product Landing Page" width="960" height="600" loading="lazy"></div><div class="meta"><small>02</small><span class="t">Liquid Glass Product Landing Page</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./cyberpunk-city/"><div class="img"><img src="./thumbs/cyberpunk-city.webp" alt="Cyberpunk 3D City Navigation" width="960" height="600" loading="lazy"></div><div class="meta"><small>03</small><span class="t">Cyberpunk 3D City Navigation</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./infinite-gallery/"><div class="img"><img src="./thumbs/infinite-gallery.webp" alt="Infinite 3D Gallery" width="960" height="600" loading="lazy"></div><div class="meta"><small>04</small><span class="t">Infinite 3D Gallery</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./cursor-black-hole/"><div class="img"><img src="./thumbs/cursor-black-hole.webp" alt="Cursor Black Hole" width="960" height="600" loading="lazy"></div><div class="meta"><small>05</small><span class="t">Cursor Black Hole</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./underwater-journey/"><div class="img"><img src="./thumbs/underwater-journey.webp" alt="Scroll-Driven Underwater Journey" width="960" height="600" loading="lazy"></div><div class="meta"><small>06</small><span class="t">Scroll-Driven Underwater Journey</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./digital-organism/"><div class="img"><img src="./thumbs/digital-organism.webp" alt="Living Digital Organism" width="960" height="600" loading="lazy"></div><div class="meta"><small>07</small><span class="t">Living Digital Organism</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./impossible-architecture/"><div class="img"><img src="./thumbs/impossible-architecture.webp" alt="Impossible Architecture Portfolio" width="960" height="600" loading="lazy"></div><div class="meta"><small>08</small><span class="t">Impossible Architecture Portfolio</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./y2k-retro-os/"><div class="img"><img src="./thumbs/y2k-retro-os.webp" alt="Y2K Retro OS 3D Desktop" width="960" height="600" loading="lazy"></div><div class="meta"><small>09</small><span class="t">Y2K Retro OS 3D Desktop</span><span class="arrow">→</span></div></a>
-  <a class="card reveal" href="./ai-core/"><div class="img"><img src="./thumbs/ai-core.webp" alt="Interactive 3D Personal AI Core" width="960" height="600" loading="lazy"></div><div class="meta"><small>10</small><span class="t">Interactive 3D Personal AI Core</span><span class="arrow">→</span></div></a>
+  <article class="card reveal"><div class="img"><img src="./thumbs/galaxy-portfolio.webp" alt="Interactive Galaxy Portfolio" width="960" height="600" loading="lazy"></div><div class="meta"><small>01</small><a class="t" href="./galaxy-portfolio/">Interactive Galaxy Portfolio</a><button class="copy" type="button" data-slug="galaxy-portfolio" aria-label="Copy prompt for Interactive Galaxy Portfolio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/liquid-glass-landing.webp" alt="Liquid Glass Product Landing Page" width="960" height="600" loading="lazy"></div><div class="meta"><small>02</small><a class="t" href="./liquid-glass-landing/">Liquid Glass Product Landing Page</a><button class="copy" type="button" data-slug="liquid-glass-landing" aria-label="Copy prompt for Liquid Glass Product Landing Page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/cyberpunk-city.webp" alt="Cyberpunk 3D City Navigation" width="960" height="600" loading="lazy"></div><div class="meta"><small>03</small><a class="t" href="./cyberpunk-city/">Cyberpunk 3D City Navigation</a><button class="copy" type="button" data-slug="cyberpunk-city" aria-label="Copy prompt for Cyberpunk 3D City Navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/infinite-gallery.webp" alt="Infinite 3D Gallery" width="960" height="600" loading="lazy"></div><div class="meta"><small>04</small><a class="t" href="./infinite-gallery/">Infinite 3D Gallery</a><button class="copy" type="button" data-slug="infinite-gallery" aria-label="Copy prompt for Infinite 3D Gallery"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/cursor-black-hole.webp" alt="Cursor Black Hole" width="960" height="600" loading="lazy"></div><div class="meta"><small>05</small><a class="t" href="./cursor-black-hole/">Cursor Black Hole</a><button class="copy" type="button" data-slug="cursor-black-hole" aria-label="Copy prompt for Cursor Black Hole"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/underwater-journey.webp" alt="Scroll-Driven Underwater Journey" width="960" height="600" loading="lazy"></div><div class="meta"><small>06</small><a class="t" href="./underwater-journey/">Scroll-Driven Underwater Journey</a><button class="copy" type="button" data-slug="underwater-journey" aria-label="Copy prompt for Scroll-Driven Underwater Journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/digital-organism.webp" alt="Living Digital Organism" width="960" height="600" loading="lazy"></div><div class="meta"><small>07</small><a class="t" href="./digital-organism/">Living Digital Organism</a><button class="copy" type="button" data-slug="digital-organism" aria-label="Copy prompt for Living Digital Organism"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/impossible-architecture.webp" alt="Impossible Architecture Portfolio" width="960" height="600" loading="lazy"></div><div class="meta"><small>08</small><a class="t" href="./impossible-architecture/">Impossible Architecture Portfolio</a><button class="copy" type="button" data-slug="impossible-architecture" aria-label="Copy prompt for Impossible Architecture Portfolio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/y2k-retro-os.webp" alt="Y2K Retro OS 3D Desktop" width="960" height="600" loading="lazy"></div><div class="meta"><small>09</small><a class="t" href="./y2k-retro-os/">Y2K Retro OS 3D Desktop</a><button class="copy" type="button" data-slug="y2k-retro-os" aria-label="Copy prompt for Y2K Retro OS 3D Desktop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
+  <article class="card reveal"><div class="img"><img src="./thumbs/ai-core.webp" alt="Interactive 3D Personal AI Core" width="960" height="600" loading="lazy"></div><div class="meta"><small>10</small><a class="t" href="./ai-core/">Interactive 3D Personal AI Core</a><button class="copy" type="button" data-slug="ai-core" aria-label="Copy prompt for Interactive 3D Personal AI Core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy prompt</span></button></div></article>
 </div>
 </main>
 <footer>
@@ -108,6 +116,23 @@ document.querySelectorAll('.reveal').forEach((el, i) => {
   el.style.transitionDelay = (i % 3) * 90 + 'ms';
   el.addEventListener('transitionend', () => { el.style.transitionDelay = ''; }, { once: true });
   io.observe(el);
+});
+
+// Copy prompt: fetch ./prompts/<slug>.txt and put it on the clipboard
+document.querySelectorAll('.copy').forEach(btn => {
+  const label = btn.querySelector('span');
+  btn.addEventListener('click', async () => {
+    try {
+      const res = await fetch(`./prompts/${btn.dataset.slug}.txt`);
+      if (!res.ok) throw new Error(res.status);
+      await navigator.clipboard.writeText((await res.text()).trim());
+      btn.classList.add('done'); label.textContent = 'Copied!';
+    } catch {
+      btn.classList.add('fail'); label.textContent = 'Failed';
+    }
+    clearTimeout(btn._t);
+    btn._t = setTimeout(() => { btn.classList.remove('done', 'fail'); label.textContent = 'Copy prompt'; }, 1800);
+  });
 });
 
 // Drifting starfield with slight mouse parallax

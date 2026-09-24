@@ -2,7 +2,7 @@
 # Assembles every project into _site/<slug>/ for GitHub Pages.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-rm -rf _site && mkdir -p _site
+rm -rf _site && mkdir -p _site/prompts
 while IFS=$'\t' read -r dir slug kind; do
   [ -z "$dir" ] && continue
   echo "==> $dir -> $slug ($kind)"
@@ -13,6 +13,10 @@ while IFS=$'\t' read -r dir slug kind; do
     mkdir -p "_site/$slug"
     (cd "$dir" && tar --exclude=node_modules --exclude='*.md' --exclude=server.js --exclude=package.json -cf - .) | tar -xf - -C "_site/$slug"
   fi
+  # Prompt for the "Copy prompt" button (one project spells it promtps.md)
+  for f in prompts.md promtps.md; do
+    if [ -f "$dir/$f" ]; then cp "$dir/$f" "_site/prompts/$slug.txt"; fi
+  done
 done < scripts/projects.tsv
 cp index.html _site/index.html
 cp -r thumbs _site/thumbs && cp og-image.jpg _site/
