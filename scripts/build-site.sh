@@ -16,4 +16,5 @@ while IFS=$'\t' read -r dir slug kind; do
 done < scripts/projects.tsv
 cp index.html _site/index.html
 cp -r screenshots _site/screenshots
+mkdir -p _site/profile && cp profile/avatar.jpg _site/profile/
 touch _site/.nojekyll
